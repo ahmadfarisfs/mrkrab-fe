@@ -19,7 +19,13 @@ export default [
     _tag: 'CSidebarNavItem',
     name: 'Project',
     to: '/project',
-    icon: 'cil-factory',
+    icon: 'cil-calculator',
+  },
+  {
+    _tag: 'CSidebarNavItem',
+    name: 'Business Unit',
+    to: '/business',
+    icon: 'cil-laptop',
   },
   {
     _tag: 'CSidebarNavItem',

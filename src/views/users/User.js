@@ -1,14 +1,31 @@
-import React from 'react'
+import React,{ useState, useEffect } from 'react'
 import { CCard, CCardBody, CCardHeader, CCol, CRow } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 
-import usersData from './UsersData'
+//import usersData from './UsersData'
 
 const User = ({match}) => {
-  const user = usersData.find( user => user.id.toString() === match.params.id)
+//  const user = usersData.find( user => user.id.toString() === match.params.id)
+  const [user, setUser] = useState()
   const userDetails = user ? Object.entries(user) : 
     [['id', (<span><CIcon className="text-muted" name="cui-icon-ban" /> Not found</span>)]]
-  
+
+    useEffect(() => {
+      console.log("useEffect");
+      const urlFetch = fetch('http://localhost:9090/user/'+match.params.id)
+      urlFetch.then(res=>{
+        if(res.status === 200){
+          console.log("200 !")
+          return res.json()
+        }
+      }).then(resJson=>{
+        console.log(resJson)
+       // setTotalPage(resJson.total_page)
+        setUser(resJson)
+      })
+    //  currentPage !== page && setPage(currentPage)
+    })
+
   return (
     <CRow>
       <CCol lg={6}>

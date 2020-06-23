@@ -8,27 +8,31 @@ import {
   CCol,
   CDataTable,
   CRow,
-  CPagination
+  CPagination,
+  CButton
 } from '@coreui/react'
 
 //import usersData from './UsersData'
 
 const getBadge = status => {
   switch (status) {
-    case 'Active': return 'success'
-    case 'Inactive': return 'secondary'
-    case 'Pending': return 'warning'
-    case 'Banned': return 'danger'
+    case 'sa': return 'success'
+    case 'pic': return 'secondary'
+    case 'member': return 'primary'
+    //case 'Banned': return 'danger'
     default: return 'primary'
   }
 }
 
 const Users = () => {
+  const itemPerpage = 5
   const history = useHistory()
   const queryPage = useLocation().search.match(/page=([0-9]+)/, '')
   const currentPage = Number(queryPage && queryPage[1] ? queryPage[1] : 1)
   const [page, setPage] = useState(currentPage)
   const [usersData, setUsers] = useState()
+  const [totalPage, setTotalPage] = useState()
+
   const pageChange = newPage => {
     currentPage !== newPage && history.push(`/users?page=${newPage}`)
   }
@@ -42,7 +46,9 @@ const Users = () => {
         return res.json()
       }
     }).then(resJson=>{
-      setUsers(resJson)
+      console.log(resJson)
+      setTotalPage(resJson.total_page)
+      setUsers(resJson.records)
     })
     currentPage !== page && setPage(currentPage)
   }, [currentPage, page])
@@ -51,20 +57,24 @@ const Users = () => {
     <CRow>
       <CCol>
         <CCard>
-          <CCardHeader>
-            Users
-            <small className="text-muted"> example</small>
-          </CCardHeader>
+       
           <CCardBody>
+            <CRow>
+              <CCol>          <CButton className="m-2" variant="outline"  color="primary"  size="sm" to="/users/add"  >
+                  Add User
+                </CButton>
+</CCol>
+            </CRow>
+
           <CDataTable
             items={usersData}
             fields={[
-              { key: 'ID', _classes: 'font-weight-bold' },
-              'firstname','lastname', 'role'
+              { key: 'id', _classes: 'font-weight-bold' },
+              'firstname','lastname','phone','email', 'role'
             ]}
             hover
-            striped
-            itemsPerPage={10}
+            striped={true}
+            itemsPerPage={itemPerpage}
             activePage={page}
             clickableRows
             onRowClick={(item) => history.push(`/users/${item.id}`)}
@@ -73,7 +83,7 @@ const Users = () => {
                 (item)=>(
                   <td>
                     <CBadge color={getBadge(item.role)}>
-                      {item.status}
+                      {item.role.toUpperCase()}
                     </CBadge>
                   </td>
                 )
@@ -82,8 +92,8 @@ const Users = () => {
           <CPagination
             activePage={page}
             onActivePageChange={pageChange}
-            pages={5}
-            doubleArrows={false} 
+            pages={totalPage}
+            doubleArrows={true} 
             align="center"
           />
           </CCardBody>
