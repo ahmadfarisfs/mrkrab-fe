@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useHistory } from "react-router-dom";
 import {
   CButton,
   CCard,
@@ -43,38 +44,41 @@ const initialFormData = Object.freeze({
 });
 
 const AddUser = () => {
+  const history = useHistory();
   const [formData, updateFormData] = useState(initialFormData);
-  const [modal, setModal] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showWarningModal, setShowWarningModal] = useState(false);
+  const [modalPayload, setModalPayload] = useState();
+
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log(formData);
+
     const requestOptions = {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(formData),
     };
-    fetch(
-      "http://localhost:9090/user",
 
-      requestOptions
-    )
+    fetch("http://localhost:9090/user", requestOptions)
       .then((res) => {
-        if (res.status === 200) {
-          console.log("200 !");
-          return res.json();
-        } else {
-          console.log("NOT 200 !");
-          toggle();
+        if (res.status === 201) {
+          console.log("201");
+          setShowSuccessModal(true);
           return;
+        } else {
+          setShowWarningModal(true);
+          console.log("Not Created");
+          return res.json();
         }
       })
       .then((data) => {
-        console.log(data);
+        if (data !== null) {
+          setModalPayload(JSON.stringify(data));
+        }
       });
   };
-  const toggle = () => {
-    setModal(!modal);
-  };
+
   useEffect(() => {
     console.log("useEffect");
   });
@@ -89,10 +93,27 @@ const AddUser = () => {
   };
   return (
     <CRow>
-      <CModal show={modal} onClose={toggle}>
-          <CModalHeader closeButton>Modal title</CModalHeader>
-          <CModalBody>Lorem ipsum dolor...</CModalBody>
-        </CModal>
+      <CModal
+        id="warn"
+        show={showWarningModal}
+        onClosed={() => {
+          setShowWarningModal(false);
+        }}
+      >
+        <CModalHeader closeButton>Failed !</CModalHeader>
+        <CModalBody>{modalPayload}</CModalBody>
+      </CModal>
+      <CModal
+        show={showSuccessModal}
+        id="sukes"
+        onClosed={() => {
+          setShowSuccessModal(false);
+          history.push("/users");
+        }}
+      >
+        <CModalHeader closeButton>Success !</CModalHeader>
+        <CModalBody></CModalBody>
+      </CModal>
       <CCol xl={5}>
         <CCard>
           <CCardBody>
