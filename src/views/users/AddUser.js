@@ -44,6 +44,8 @@ const initialFormData = Object.freeze({
   lastname: "",
   username: "",
   password: "",
+  passwordre: "",
+  role:"sa"
 });
 
 const AddUser = () => {
@@ -56,7 +58,11 @@ const AddUser = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log(formData);
-
+if (formData.password !== formData.passwordre){
+  setModalPayload("Please Enter Matching Password");
+  setShowWarningModal(true);
+  return
+}
     const requestOptions = {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -207,9 +213,10 @@ const AddUser = () => {
                 </CCol>
                 <CCol xs="12" md="9">
                   <CInput
+                    onChange={handleChange}
                     type="password"
                     id="password-input"
-                    name="password-input"
+                    name="password"
                     placeholder="Password"
                     autoComplete="new-password"
                   />
@@ -220,14 +227,14 @@ const AddUser = () => {
               </CFormGroup>
               <CFormGroup row>
                 <CCol md="3">
-                  <CLabel htmlFor="password-input">Re-enter Password</CLabel>
+                  <CLabel htmlFor="password-input-re">Re-enter Password</CLabel>
                 </CCol>
                 <CCol xs="12" md="9">
                   <CInput
                     onChange={handleChange}
                     type="password"
-                    id="password-input"
-                    name="password"
+                    id="password-input-re"
+                    name="passwordre"
                     placeholder="Re-enter Password"
                     autoComplete="new-password"
                   />
@@ -252,8 +259,8 @@ const AddUser = () => {
                   <CLabel htmlFor="select">Role</CLabel>
                 </CCol>
                 <CCol xs="12" md="9">
-                  <CSelect onChange={handleChange} custom name="role" id="role">
-                    <option value="sa">System Administrator</option>
+                  <CSelect  onChange={handleChange} custom name="role" id="role">
+                    <option selected value="sa">System Administrator</option>
                     <option value="pic">PIC</option>
                     <option value="member">Member</option>
                     <option value="secretary">Secretary</option>

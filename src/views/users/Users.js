@@ -45,11 +45,17 @@ const Users = () => {
       if(res.status === 200){
         console.log("200 !")
         return res.json()
+      }else{
+        console.log("Error")
+        return
       }
     }).then(resJson=>{
-      console.log(resJson)
-      setTotalPage(resJson.total_page)
-      setUsers(resJson.records)
+      if (resJson!=null){
+        console.log(resJson)
+        setTotalPage(resJson.total_page)
+        setUsers(resJson.records)
+      }
+
     })
     currentPage !== page && setPage(currentPage)
   }, [currentPage, page])

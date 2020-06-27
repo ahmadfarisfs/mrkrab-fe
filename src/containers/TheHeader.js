@@ -12,7 +12,7 @@ import {
   CLink
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
-
+import { showChange} from './slice'
 // routes config
 import routes from '../routes'
 
@@ -25,16 +25,16 @@ import {
 
 const TheHeader = () => {
   const dispatch = useDispatch()
-  const sidebarShow = useSelector(state => state.sidebarShow)
+  const sidebarShow = useSelector(state => state.sidebar.sidebarShow)
 
   const toggleSidebar = () => {
     const val = [true, 'responsive'].includes(sidebarShow) ? false : 'responsive'
-    dispatch({type: 'set', sidebarShow: val})
+    dispatch(showChange({type: 'set', sidebarShow: val}))
   }
 
   const toggleSidebarMobile = () => {
     const val = [false, 'responsive'].includes(sidebarShow) ? true : 'responsive'
-    dispatch({type: 'set', sidebarShow: val})
+    dispatch(showChange({type: 'set', sidebarShow: val}))
   }
 
   return (
