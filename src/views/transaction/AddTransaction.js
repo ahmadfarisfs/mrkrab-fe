@@ -35,9 +35,6 @@ import {
   CSelect,
   CRow,
 } from "@coreui/react";
-
-import { endpointURL } from '../../settings';
-
 import CIcon from "@coreui/icons-react";
 const initialFormData = Object.freeze({
   firstname: "",
@@ -45,8 +42,9 @@ const initialFormData = Object.freeze({
   username: "",
   password: "",
 });
+import { endpointURL } from '../../settings';
 
-const AddUser = () => {
+const AddTransaction = () => {
   const history = useHistory();
   const [formData, updateFormData] = useState(initialFormData);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -290,4 +288,4 @@ const AddUser = () => {
   );
 };
 
-export default AddUser;
+export default AddTransaction

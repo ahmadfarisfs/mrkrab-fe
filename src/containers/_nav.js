@@ -18,7 +18,7 @@ export default [
   {
     _tag: 'CSidebarNavItem',
     name: 'Project',
-    to: '/project',
+    to: '/projects',
     icon: 'cil-calculator',
   },
   {

@@ -4,7 +4,6 @@ import {
   CBadge,
   CCard,
   CCardBody,
-  CSpinner,
   CCardHeader,
   CCol,
   CDataTable,
@@ -12,20 +11,20 @@ import {
   CPagination,
   CButton
 } from '@coreui/react'
-import { endpointURL } from '../../settings';
 
+import { endpointURL } from '../../settings';
+//import usersData from './UsersData'
 
 const getBadge = status => {
   switch (status) {
     case 'sa': return 'success'
     case 'pic': return 'secondary'
     case 'member': return 'primary'
-    //case 'Banned': return 'danger'
     default: return 'primary'
   }
 }
 
-const Users = () => {
+const Transactions = () => {
   const itemPerpage = 5
   const history = useHistory()
   const queryPage = useLocation().search.match(/page=([0-9]+)/, '')
@@ -35,12 +34,12 @@ const Users = () => {
   const [totalPage, setTotalPage] = useState()
 
   const pageChange = newPage => {
-    currentPage !== newPage && history.push(`/users?page=${newPage}`)
+    currentPage !== newPage && history.push(`/projects?page=${newPage}`)
   }
 
   useEffect(() => {
     console.log("useEffect");
-    const urlFetch = fetch(endpointURL+'/user')
+    const urlFetch = fetch(endpointURL+'/projects')
     urlFetch.then(res=>{
       if(res.status === 200){
         console.log("200 !")
@@ -78,14 +77,7 @@ const Users = () => {
             itemsPerPage={itemPerpage}
             activePage={page}
             clickableRows
-            onRowClick={(item) => history.push(`/users/${item.id}`)}
-           // noItemsView = {<CSpinner color="info" />}
-            noItemsViewSlot = {
-              <div className="d-flex justify-content-center">
-            <CSpinner
-            
-            color="info" /></div>
-          }
+            onRowClick={(item) => history.push(`/projects/${item.id}`)}
             scopedSlots = {{
               'role':
                 (item)=>(
@@ -111,4 +103,4 @@ const Users = () => {
   )
 }
 
-export default Users
+export default Transactions
