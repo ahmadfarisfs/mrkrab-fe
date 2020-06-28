@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useHistory, useLocation } from 'react-router-dom'
+import { useSelector, useDispatch } from 'react-redux';
+import { post,get } from '../../requester';
 import {
   CBadge,
   CCard,
@@ -14,6 +16,7 @@ import {
 } from '@coreui/react'
 import { endpointURL } from '../../settings';
 
+import { createAsyncThunk } from '@reduxjs/toolkit';
 
 const getBadge = status => {
   switch (status) {
@@ -33,31 +36,20 @@ const Users = () => {
   const [page, setPage] = useState(currentPage)
   const [usersData, setUsers] = useState()
   const [totalPage, setTotalPage] = useState()
-
+  let dispatch = useDispatch();
   const pageChange = newPage => {
     currentPage !== newPage && history.push(`/users?page=${newPage}`)
   }
 
   useEffect(() => {
-    console.log("useEffect");
-    const urlFetch = fetch(endpointURL+'/user')
-    urlFetch.then(res=>{
-      if(res.status === 200){
-        console.log("200 !")
-        return res.json()
-      }else{
-        console.log("Error")
-        return
-      }
-    }).then(resJson=>{
-      if (resJson!=null){
-        console.log(resJson)
-        setTotalPage(resJson.total_page)
-        setUsers(resJson.records)
-      }
-
-    })
-    currentPage !== page && setPage(currentPage)
+    dispatch(
+      get(endpointURL+'/user',
+      res =>{
+        setTotalPage(res.data.total_page)
+        setUsers(res.data.records)
+        currentPage !== page && setPage(currentPage)
+      })
+    )
   }, [currentPage, page])
 
   return (

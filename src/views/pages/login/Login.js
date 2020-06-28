@@ -30,6 +30,17 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [showWarningModal, setShowWarningModal] = useState(false);
   let dispatch = useDispatch();
+  const isAuthorized = useSelector(state => state.auth.isAuthenticated);
+
+
+//  useEffect(() => {
+//  //  console.log("use Effect")
+//  //  console.log(isAuthorized)
+// if (isAuthorized){
+//   history.push("/dashboard")
+// }
+//  },[isAuthorized])
+
 
   function validateForm() {
     return username.length > 0 && password.length > 0;
@@ -137,9 +148,9 @@ loginPayload
                   <div>
                     <h2>Sign up</h2>
                     <p>Contact System Administrator to create account</p>
-                    <Link href="mailto:ahmadfarisfs@gmail.com">
+                    
                       <CButton  color="primary" className="mt-3" active tabIndex={-1}>Contact Now</CButton>
-                    </Link>
+                    
                   </div>
                 </CCardBody>
               </CCard>
