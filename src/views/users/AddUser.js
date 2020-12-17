@@ -259,8 +259,8 @@ if (formData.password !== formData.passwordre){
                   <CLabel htmlFor="select">Role</CLabel>
                 </CCol>
                 <CCol xs="12" md="9">
-                  <CSelect  onChange={handleChange} custom name="role" id="role">
-                    <option selected value="sa">System Administrator</option>
+                  <CSelect defaultValue="sa"  onChange={handleChange} custom name="role" id="role">
+                    <option  value="sa">System Administrator</option>
                     <option value="pic">PIC</option>
                     <option value="member">Member</option>
                     <option value="secretary">Secretary</option>

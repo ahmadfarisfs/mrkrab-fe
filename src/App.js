@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { HashRouter, Route, Switch ,Redirect} from 'react-router-dom';
+import { BrowserRouter, Route, Switch ,Redirect} from 'react-router-dom';
 import './scss/style.scss';
 import { Provider, useSelector } from "react-redux";
 const loading = (
@@ -21,7 +21,7 @@ class App extends Component {
   render() {
     return (
     
-      <HashRouter>
+      <BrowserRouter>
           <React.Suspense fallback={loading}>
             <Switch>
       
@@ -32,7 +32,7 @@ class App extends Component {
               <Route  path="/" name="Home" render={props => <TheLayout {...props}/>} />
             </Switch>
           </React.Suspense>
-      </HashRouter>
+      </BrowserRouter>
 
     );
   }

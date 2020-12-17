@@ -1,7 +1,7 @@
 import { useDispatch, useSelector } from 'react-redux';
 import React, { useState, useEffect } from "react";
 import { Link,useHistory } from 'react-router-dom'
-import { login, loginSuccess } from  './slice';
+import { login, loginSuccess, logout } from  './slice';
 import { post } from '../../../requester';
 import {
   CModal,
@@ -28,18 +28,17 @@ const Login = () => {
   let history = useHistory();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [warningMessage, setWarningPayload] = useState("");
   const [showWarningModal, setShowWarningModal] = useState(false);
   let dispatch = useDispatch();
   const isAuthorized = useSelector(state => state.auth.isAuthenticated);
 
 
-//  useEffect(() => {
-//  //  console.log("use Effect")
-//  //  console.log(isAuthorized)
-// if (isAuthorized){
-//   history.push("/dashboard")
-// }
-//  },[isAuthorized])
+  useEffect(() => {
+  //  console.log("use Effect")
+    console.log("logout effect")
+  dispatch(logout())
+  },[])
 
 
   function validateForm() {
@@ -54,7 +53,11 @@ const Login = () => {
   }
   function handleSubmit(event) {
     event.preventDefault();
-    dispatch(login(username,password,history));
+    dispatch(login(username,password,history,(err)=>{
+      //message="AKu adaalh error";
+      setWarningPayload("Error Login, please check your username and password")
+      setShowWarningModal(true) 
+    }));
 /*   console.log(username);
     console.log(password);
     var loginPayload ={password:"",username:""};
@@ -92,14 +95,15 @@ loginPayload
     <div className="c-app c-default-layout flex-row align-items-center">
       <CContainer>
       <CModal
+      centered
         id="warn"
-        show={showWarningModal}
+        show={showWarningModal }
         onClosed={() => {
           setShowWarningModal(false);
         }}
       >
-        <CModalHeader closeButton>Failed !</CModalHeader>
-        <CModalBody>Fail</CModalBody>
+        <CModalHeader closeButton>Login Failed !</CModalHeader>
+      <CModalBody >{warningMessage}</CModalBody>
       </CModal>
         <CRow className="justify-content-center">
           <CCol md="8">

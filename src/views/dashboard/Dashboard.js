@@ -323,7 +323,7 @@ const Dashboard = () => {
               <table className="table table-hover table-outline mb-0 d-none d-sm-table">
                 <thead className="thead-light">
                   <tr>
-                    <th className="text-center"><CIcon name="cil-people" /></th>
+                    <th className="text-center"><CIcon  name="cil-people" /></th>
                     <th>User</th>
                     <th className="text-center">Country</th>
                     <th>Usage</th>

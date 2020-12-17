@@ -2,32 +2,21 @@ import React,{ useState, useEffect } from 'react'
 import { CCard, CCardBody, CCardHeader, CCol, CRow } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { endpointURL } from '../../settings';
-
+import { useSelector, useDispatch } from 'react-redux';
+import { post,get } from '../../requester';
 
 const Project = ({match}) => {
-  const [user, setProject] = useState()
-  const projectDetails = user ? Object.entries(user) : 
+  const [project, setProject] = useState()
+  const projectDetails = project ? Object.entries(project) : 
     [['id', (<span><CIcon className="text-muted" name="cui-icon-ban" /> Not found</span>)]]
-
+    let dispatch = useDispatch();
     useEffect(() => {
-      let isSubscribed = true
-      console.log("useEffect");
-      const urlFetch = fetch(endpointURL+'/project/'+match.params.id)
-      urlFetch.then(res=>{
-        if(res.status === 200){
-          console.log("200 !")
-          return res.json()
-        }
-      }).then(resJson=>{
-        console.log(resJson)
-       // setTotalPage(resJson.total_page)
-       if (isSubscribed){
-        setProject(resJson)
-       }
-      
-      })
-      return () => isSubscribed = false
-    //  currentPage !== page && setPage(currentPage)
+      dispatch(
+        get(endpointURL+'/project/'+match.params.id,
+        res =>{
+          setProject(res.data)
+        })
+      )
     },[])
 
   return (
@@ -35,19 +24,21 @@ const Project = ({match}) => {
       <CCol lg={6}>
         <CCard>
           <CCardHeader>
-            User id: {match.params.id}
+            Project id: {match.params.id}
           </CCardHeader>
           <CCardBody>
               <table className="table table-striped table-hover">
                 <tbody>
                   {
                     projectDetails.map(([key, value], index) => {
-                      return (
-                        <tr key={index.toString()}>
+                    //  console.log(index + typeof(key))
+                      if(( typeof(value) != "object"  )&&( typeof(value) != "array"  )) {   
+                         return (
+                          <tr key={index.toString()}>
                           <td>{`${key}:`}</td>
-                          <td><strong>{}</strong></td>
+                          <td><strong>{value}</strong></td>
                         </tr>
-                      )
+                      )}
                     })
                   }
                 </tbody>

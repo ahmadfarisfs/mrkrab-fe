@@ -1,5 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 import Axios from 'axios';
+import { Link,useHistory } from 'react-router-dom'
 
 export const slice = createSlice({
   name: 'main',
@@ -62,15 +63,17 @@ export const setInfo = data => dispatch => {
 
 const responseAlert = response => async dispatch => {
   if (response && response.status === 401) {
-    dispatch(openAlert({
-      title: 'Token Expired',
-      content: "Your authentication token has expired. For your safety, please relogin.",
-    }));
+    let history = useHistory();
+    history.push("/login")
+   // dispatch(openAlert({
+  //    title: 'Token Expired',
+  //    content: "Your authentication token has expired. For your safety, please relogin.",
+  //  }));
   } else {
-    dispatch(openAlert({
-      title: 'API Error',
-      content: response?.data.error_message,
-    }));
+  //  dispatch(openAlert({
+   //   title: 'API Error',
+  //    content: response?.data.error_message,
+  //  }));
   }
 }
 
@@ -111,6 +114,7 @@ export const post = (
       console.log(res);
 
       ifSuccess(res);
+      
     })
     .catch((err) => {
       console.log(err);

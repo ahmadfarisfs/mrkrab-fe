@@ -21,15 +21,18 @@ export const slice = createSlice({
         "Content-Type": "application/json",
       };
     },
-    logout: (state) => {
+    logoutSuccess: (state) => {
+      console.log("From reducer logout!");
       state.isAuthenticated = false;
     },
   },
 });
 
-export const { loginSuccess, logout } = slice.actions;
-
-export const login = (username, password,history) => dispatch => {
+export const { loginSuccess, logoutSuccess } = slice.actions;
+export const logout = () =>dispatch =>{
+  dispatch(logoutSuccess());
+};
+export const login = (username, password,history,onError) => dispatch => {
  console.log("LOGIN")
  console.log(username)
  console.log(password)
@@ -48,8 +51,9 @@ export const login = (username, password,history) => dispatch => {
         dispatch(loginSuccess(res.data));
         history.push("/dashboard");
       },
-      () => {
+      (res) => {
         //if error
+        onError(res)
       },
       () => {
         //finally do
@@ -57,4 +61,6 @@ export const login = (username, password,history) => dispatch => {
     )
   )
 };
+
+
 export default slice.reducer;

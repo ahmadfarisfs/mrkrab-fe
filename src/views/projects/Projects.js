@@ -11,8 +11,9 @@ import {
   CPagination,
   CButton,
 } from "@coreui/react";
+import { post,get } from '../../requester';
 import { endpointURL } from '../../settings';
-
+import { useSelector, useDispatch } from 'react-redux';
 const getBadge = (status) => {
   switch (status) {
     case "ongoing":
@@ -34,28 +35,21 @@ const Projects = () => {
   const [page, setPage] = useState(currentPage);
   const [projectsData, setProjects] = useState();
   const [totalPage, setTotalPage] = useState();
-
+  let dispatch = useDispatch();
   const pageChange = (newPage) => {
     currentPage !== newPage && history.push(`/projects?page=${newPage}`);
   };
-
   useEffect(() => {
-    console.log("useEffect");
-    const urlFetch = fetch(endpointURL+"/project");
-    urlFetch
-      .then((res) => {
-        if (res.status === 200) {
-          console.log("200 !");
-          return res.json();
-        }
+    dispatch(
+      get(endpointURL+'/project',
+      res =>{
+        setTotalPage(res.data.total_page)
+        setProjects(res.data.records)
+        currentPage !== page && setPage(currentPage)
       })
-      .then((resJson) => {
-        console.log(resJson);
-        setTotalPage(resJson.total_page);
-        setProjects(resJson.records);
-      });
-    currentPage !== page && setPage(currentPage);
-  }, [currentPage, page]);
+    )
+  }, [currentPage, page])
+
 
   return (
     <CRow>
@@ -72,7 +66,7 @@ const Projects = () => {
                   size="sm"
                   to="/projects/add"
                 >
-                  Add User
+                  Add Project
                 </CButton>
               </CCol>
             </CRow>
