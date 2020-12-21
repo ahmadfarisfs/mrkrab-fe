@@ -8,19 +8,50 @@ import { useHistory, Route } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import Swal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content'
-
+import configData from "../../config.json";
+import axios from 'axios';
 const MySwal = withReactContent(Swal)
 const AddUserPage = () => {
+  const history = useHistory();
+  const [loading, setLoading] = useState(false);
   const { register, errors, handleSubmit, watch } = useForm({ mode: 'onChange', });
-  const onSubmit = (data: any) => {console.log(data);
-  
+  const onSubmit = (data: any) => {
+    console.log(data);
+
     MySwal.fire(
-{      title:'Are you sure ?',
-showCancelButton: true,
-      icon:'question',}
-    )
-  
-  
+      {
+        title: 'Are you sure ?',
+        text: "Make sure to inform the password to the newly created user",
+        showCancelButton: true,
+        icon: 'question',
+        showLoaderOnConfirm: true,
+        preConfirm: (login) => {
+          return axios.post(configData.baseURL + `/users`, data)
+            .then(response => {
+              if (response.status != 200) {
+                throw new Error(response.statusText)
+              }
+              console.log("ret data")
+              console.log(response)
+              return "OK"
+            })
+            .catch(error => {
+              Swal.showValidationMessage(
+                `Registration Failed: ${error}`
+              )
+            })
+        },
+        allowOutsideClick: () => !Swal.isLoading()
+      }
+    ).then((result) => {
+      if (result.isConfirmed) {
+        Swal.fire('User Created!', '', 'success').then(()=>{
+          history.push('/user');
+        })
+      }
+    })
+
+
   };
 
   const password = useRef({});
@@ -28,10 +59,10 @@ showCancelButton: true,
   console.log(errors);
   return (
     <Card>
-      
+
       <Card.Body>
         <Card.Title>Add User</Card.Title>
-        <Form onSubmit={handleSubmit(onSubmit)} noValidate>
+        <Form className="pt-2" onSubmit={handleSubmit(onSubmit)} noValidate>
 
           <Form.Group as={Row} controlId="user.fullname">
             <Form.Label column sm={2}>
@@ -40,9 +71,9 @@ showCancelButton: true,
             <Col sm={10}>
               <Form.Control
 
-                name="FullName"
-                //isValid={errors.FullName}
-                isInvalid={!!errors.FullName}
+                name="Fullname"
+                //isValid={errors.Fullname}
+                isInvalid={!!errors.Fullname}
                 ref={register({ required: true, maxLength: 40 })}
                 type="text"
                 placeholder="Full Name" />
@@ -110,14 +141,14 @@ showCancelButton: true,
             </Col>
 
           </Form.Group>
-          <Form.Group as={Row} controlId="exampleForm.ControlSelect1">
+          <Form.Group as={Row} controlId="user.roleSelect">
             <Form.Label column >User Role</Form.Label>
             <Col sm={10}>
-              <Form.Control as="select">
-              <option>Owner</option>
-                <option>System Admin</option>
-                <option>Secretary</option>
-                <option>Member</option>
+              <Form.Control ref={register({ required: true, })} as="select" name="Role">
+                <option value="owner">Owner</option>
+                <option value="sa">System Admin</option>
+                <option value="secretary">Secretary</option>
+                <option value="member">Member</option>
               </Form.Control></Col>
           </Form.Group>
 
