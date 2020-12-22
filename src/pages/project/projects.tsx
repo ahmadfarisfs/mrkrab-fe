@@ -6,7 +6,12 @@ import { useHistory, Route } from 'react-router-dom';
 import { PlusCircle, CashStack, Bricks, Cash } from 'react-bootstrap-icons';
 import { Card, Row, Col, Form, Container, Button } from 'react-bootstrap';
 import AddProjectPage from './addprojects';
+import moment from 'moment';
+import configData from "../../config.json";
 
+import Swal from 'sweetalert2'
+import withReactContent from 'sweetalert2-react-content'
+const MySwal = withReactContent(Swal)
 const FilterComponent = () => {
     return (
         
@@ -39,82 +44,95 @@ const ListProject = () => {
     const history = useHistory();
     const columns = [
         {
-            name: "No",
-            selector: "id",
+            name: "ID",
+            selector: "ID",
             sortable: false
         },
         {
             name: "Name",
-            selector: "name",
+            selector: "Name",
             sortable: false
         },
         {
-            name: "Role",
-            selector: "role",
+            name: "Created Since",
+            selector: "CreatedAt",
             sortable: false,
-            right: false
+            format: (row:any)=><>{row.CreatedAt? moment(row.CreatedAt).fromNow():null}</>,
+           
         }
     ];
-    const fakeData = [
-        {
-            id: 100,
-            name: "Ahmad",
-            role: "admin",
-        }, {
-            id: 110,
-            name: "Junaedi",
-            role: "owner",
-        },
-    ];
-    const fetchUsers = async (page: number) => {
+
+    const fetchProjects = async (page: number, newPage?:number) => {
         setLoading(true);
-        const response = await axios.get(
-            `https://reqres.in/api/users?page=${page}&per_page=${perPage}&delay=1`,
-        );
-        setData(response.data.data);
-        setTotalRows(response.data.total);
-        setLoading(false);
+
+        let perPageLocal = newPage?newPage:perPage;
+        let fromIndex = (perPageLocal * (page - 1));
+        let toIndex = fromIndex + perPageLocal - 1;
+        console.log("req " + fromIndex + " to " + toIndex);
+        let response;
+        try {
+             response = await axios.get(
+                configData.baseURL + `/projects?range=[` + fromIndex + `,` + toIndex + `]`,
+            );
+            if (response.status!=200){
+                throw new Error('Unexpected response code'); 
+            }
+            console.log(response);
+            setData(response.data);
+            var totalData = parseInt(response.headers["content-range"].split("/")[1]);
+            console.log("total data " + totalData);
+            setTotalRows(totalData);
+            
+        } catch (error) {
+            console.log(error);
+            setData([]);
+            MySwal.fire(
+                {
+                    title:'Error',
+                    icon:'error',
+                    text: error,
+                }
+            )
+        } finally{
+            setLoading(false); 
+        }
+        
+        
     };
 
     const handlePageChange = (page: number, totalRows: number) => {
         console.log("page change handler")
-        fetchUsers(page);
+        fetchProjects(page);
     };
 
     const handlePerRowsChange = async (newPerPage: number, page: number) => {
-        console.log("row change handler")
-        setLoading(true);
-
-        fetchUsers(page);
-
-        //setData(response.data.data);
+        console.log("row change handler " + newPerPage);
+        fetchProjects(page,newPerPage);
         setPerPage(newPerPage);
-        setLoading(false);
     };
     useEffect(() => {
-        setData(fakeData);
-        console.log("user page loaded");
+        fetchProjects(1);
+        console.log("Projects page loaded");
     }, [])
     return (
         <DataTable
+            paginationRowsPerPageOptions={[2, 5, 10]}
+            progressPending={loading}
             actions={<Button onClick={() => {
                 history.push('/project/add')
             }} className="d-flex align-items-center"  >
                 <PlusCircle className="m-1" /> Add Project</Button>}
-            // subHeader
-            // subHeaderWrap={false}
-            // subHeaderAlign="left"
-            //   subHeaderComponent={[<FilterComponent/>]}
-            title="Projct"
+
+            title="Projects"
             columns={columns}
-            data={fakeData}
-            //  progressPending={loading}
+            data={data}
+
             pagination
-        //    paginationServer
-        //   paginationTotalRows={totalRows}
-        //    selectableRows
-        //  onChangeRowsPerPage={handlePerRowsChange}
-        //  onChangePage={handlePageChange}
+            paginationServer
+            paginationTotalRows={totalRows}
+            //    selectableRows
+            onChangeRowsPerPage={handlePerRowsChange}
+            onChangePage={handlePageChange}
         />
     );
 };

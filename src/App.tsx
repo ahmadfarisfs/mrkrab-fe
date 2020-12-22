@@ -49,47 +49,38 @@ const App = () => (
           <Row>
             <Col md={3} className="p-3">
               <ListGroup  >
-              <NavLink style={{ textDecoration: 'none' }} to="/">
-                  <ListGroup.Item action  >
-                    <MenuApp className="m-1" />Dashboard
+                <ListGroup.Item action as={NavLink} exact to="/">
+                  <MenuApp className="m-1" />Dashboard
                 </ListGroup.Item>
-                </NavLink >
-                <NavLink style={{ textDecoration: 'none' }} to="/user">
-                  <ListGroup.Item action  >
-                    <PersonLinesFill className="m-1" />User
+
+                <ListGroup.Item action to="/user" as={NavLink}>
+                  <PersonLinesFill className="m-1" />User
                 </ListGroup.Item>
-                </NavLink >
-                <NavLink style={{ textDecoration: 'none' }} to="/project">
-                  <ListGroup.Item action >
-                    <Bricks className="m-1" />Project</ListGroup.Item>
-                </NavLink >
-                <NavLink style={{ textDecoration: 'none' }} to="/transaction">
-                  <ListGroup.Item action >
-                    <CashStack className="m-1" />Transaction</ListGroup.Item>
-                </NavLink >
-                <NavLink style={{ textDecoration: 'none' }} to="/transfer">
-                  <ListGroup.Item action >
-                    <ArrowRepeat className="m-1" />Transfer</ListGroup.Item>
-                </NavLink >
-                <NavLink style={{ textDecoration: 'none' }} to="/loan">
-                  <ListGroup.Item action >
-                    <HandThumbsDown className="m-1" />Loan</ListGroup.Item>
-                </NavLink >
+                <ListGroup.Item action to="/project" as={NavLink}>
+                  <Bricks className="m-1" />Project</ListGroup.Item>
+                <ListGroup.Item action as={NavLink} to="/transaction">
+                  <CashStack className="m-1" />Transaction</ListGroup.Item>
+                <ListGroup.Item action to="/transfer" as={NavLink}>
+                  <ArrowRepeat className="m-1" />Transfer</ListGroup.Item>
+
+                <ListGroup.Item action as={NavLink} to="/loan" >
+                  <HandThumbsDown className="m-1" />Loan</ListGroup.Item>
+
               </ListGroup>
             </Col>
             <Col className="p-3"><Switch>
-          
-            <Route exact  path="/" component={DashboardPage}>
-              
-          </Route>
+
+              <Route exact path="/" component={DashboardPage}>
+
+              </Route>
               <Route path="/user" component={UserPage}>
-                
-          </Route>
+
+              </Route>
               <Route path="/project" component={ProjectPage}>
-          </Route>
+              </Route>
               <Route path="/transaction">
 
-               <TransactionPage/>
+                <TransactionPage />
 
               </Route>
             </Switch></Col>

@@ -29,6 +29,7 @@ const AddUserPage = () => {
           return axios.post(configData.baseURL + `/users`, data)
             .then(response => {
               if (response.status != 200) {
+                console.log("NOT 200")
                 throw new Error(response.statusText)
               }
               console.log("ret data")
@@ -36,6 +37,7 @@ const AddUserPage = () => {
               return "OK"
             })
             .catch(error => {
+              console.log(error)
               Swal.showValidationMessage(
                 `Registration Failed: ${error}`
               )
