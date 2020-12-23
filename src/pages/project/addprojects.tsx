@@ -129,7 +129,7 @@ const AddProjectPage = () => {
                                                     items[index] = item;
                                                     setBudgets(items);
                                                     console.log(budgets);
-                                                }} value={budgets[index].pocketName} size="sm" type="text" placeholder="Pocket Name" />
+                                                }}  size="sm" type="text" placeholder="Pocket Name" />
                                             <Form.Control.Feedback type='invalid'>Required</Form.Control.Feedback>
                                         </Col>
                                         <Col sm={2}>

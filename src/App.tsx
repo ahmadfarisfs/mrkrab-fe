@@ -1,99 +1,82 @@
 import React from 'react';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import './App.css';
-import Container from 'react-bootstrap/Container';
-import Col from 'react-bootstrap/Col';
-import Row from 'react-bootstrap/Row';
-import Navbar from 'react-bootstrap/Navbar';
-import ListGroup from 'react-bootstrap/ListGroup';
-import { PersonLinesFill, CashStack, Bricks, Cash, HandThumbsDown, ArrowRepeat, MenuApp } from 'react-bootstrap-icons';
-import logo from './assets/icon.png';
-
-import UserPage from "./pages/user/users";
+import { Layout, Menu } from 'antd';
 import {
-  Redirect,
-  BrowserRouter as Router,
-  Switch,
-  Route,
-  NavLink,
-  Link,
+  DesktopOutlined,
+  PieChartOutlined,
+  TransactionOutlined,
+  TeamOutlined, AccountBookOutlined,
+  UserOutlined, DashboardOutlined, ProjectOutlined
+} from '@ant-design/icons';
+
+import {
+  Link, Route, Switch, useHistory, useLocation, BrowserRouter as Router
 } from "react-router-dom";
-import DataTable from "react-data-table-component";
 import ProjectPage from './pages/project/projects';
 import TransactionPage from './pages/transaction/transactions';
-import { Card } from 'react-bootstrap';
+import UserPage from "./pages/user/users";
 import DashboardPage from './pages/dashboard/dashboard';
 
-const App = () => (
-  <>
+
+import { useState, useEffect } from 'react';
+
+const { Header, Content, Footer, Sider } = Layout;
+const { SubMenu } = Menu;
+
+const App = () => {
+  const items: { key: string, label: string, icon: any, path: string, content: any }[] = [
+    { key: '1', label: 'Dashboard', path: '/', icon: <DashboardOutlined />, content: DashboardPage },
+    { key: '2', label: 'User', path: '/user', icon: <TeamOutlined />, content: UserPage },
+    { key: '3', label: 'Project', path: '/project', icon: <ProjectOutlined />, content: ProjectPage },
+    { key: '4', label: 'Transaction', path: '/transaction', icon: <TransactionOutlined />, content: TransactionPage },
+    { key: '5', label: 'Payable & Receivable', path: '/pending', icon: <AccountBookOutlined />, content: DashboardPage },
+  ];
+
+  const [collapsed, setCollapse] = useState(false);
+  const onCollapse = (collapse: boolean) => {
+    setCollapse(collapse)
+  };
+
+  return (
     <Router>
-      <div>
-        <Navbar variant="dark" className="bg-dark justify-content-between p-3">
-          <Navbar.Brand href="#home">
-            <img
-              alt=""
-              src={logo}
-              width="20"
-              height="20"
+      <Layout style={{ minHeight: '100vh' }}>
+        <Sider breakpoint="lg" collapsible collapsed={collapsed} onCollapse={onCollapse}>
+          <div className="logo" />
+          <Menu
 
-            />{' '}
-      Mr. Krab
-    </Navbar.Brand>
-          <Navbar.Collapse className="justify-content-end">
-            <Navbar.Text>
-              Signed in as: <a href="#login">Mark Otto</a>
-            </Navbar.Text>
-          </Navbar.Collapse>
-        </Navbar>
-        <Container fluid>
-          <Row>
-            <Col md={3} className="p-3">
-              <ListGroup  >
-                <ListGroup.Item action as={NavLink} exact to="/">
-                  <MenuApp className="m-1" />Dashboard
-                </ListGroup.Item>
+            mode='inline' theme="dark" defaultSelectedKeys={['1']}>
+            {
+              items.map((item) => (
+                <Menu.Item key={item.key} icon={item.icon}>
+                  <Link to={item.path}>{item.label}</Link>
+                </Menu.Item>
+              ))
+            }
 
-                <ListGroup.Item action to="/user" as={NavLink}>
-                  <PersonLinesFill className="m-1" />User
-                </ListGroup.Item>
-                <ListGroup.Item action to="/project" as={NavLink}>
-                  <Bricks className="m-1" />Project</ListGroup.Item>
-                <ListGroup.Item action as={NavLink} to="/transaction">
-                  <CashStack className="m-1" />Transaction</ListGroup.Item>
-                <ListGroup.Item action to="/transfer" as={NavLink}>
-                  <ArrowRepeat className="m-1" />Transfer</ListGroup.Item>
+          </Menu>
+        </Sider>
+        <Layout className="site-layout">
+          <Header className="site-layout-background" style={{ padding: 0 }} />
+          <Content style={{ margin: '0 16px' }}>
 
-                <ListGroup.Item action as={NavLink} to="/loan" >
-                  <HandThumbsDown className="m-1" />Loan</ListGroup.Item>
-
-              </ListGroup>
-            </Col>
-            <Col className="p-3"><Switch>
-
-              <Route exact path="/" component={DashboardPage}>
-
-              </Route>
-              <Route path="/user" component={UserPage}>
-
-              </Route>
-              <Route path="/project" component={ProjectPage}>
-              </Route>
-              <Route path="/transaction">
-
-                <TransactionPage />
-
-              </Route>
-            </Switch></Col>
-          </Row>
-        </Container>
-        {/* A <Switch> looks through its children <Route>s and
-            renders the first one that matches the current URL. */}
-
-      </div>
-    </Router>
+            <div className="site-layout-background" style={{
+              margin: '24px 16px',
+              padding: 24,
+              minHeight: 280,
+            }}>
+              <Switch>
+                {
+                  items.map((item) => (
+                    <Route exact={item.path === "/" ? true : false} path={item.path} component={item.content}>
+                    </Route>
+                  ))
+                }
+              </Switch>
+            </div>
+          </Content>
+          <Footer style={{ textAlign: 'center' }}>HM PMS ©2020 Created by AFFS</Footer>
+        </Layout>
+      </Layout></Router>)
+};
 
 
-
-  </>
-);
 export default App;

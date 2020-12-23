@@ -1,19 +1,29 @@
-import React, { useEffect, useState,useMemo } from 'react';
+import React, { useEffect, useState } from 'react';
 import DataTable from "react-data-table-component";
-import movies from "../../movies";
 import axios from 'axios';
-import { PlusCircle, CashStack, Bricks, Cash, TrashFill } from 'react-bootstrap-icons';
-import { Card, Row, Col, Form, Container, Button } from 'react-bootstrap';
-import { stringify } from 'querystring';
+//import { Card, Row, Col, Form, Container, Button } from 'react-bootstrap';
+import { Button,Drawer } from 'antd';
 import { useHistory, Route } from 'react-router-dom';
 import AddUserPage from './addusers';
 import configData from "../../config.json";
 import moment from 'moment';
+import {
+    UserAddOutlined,
+    DeleteOutlined
+  } from '@ant-design/icons';
 
 import Swal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content'
 const MySwal = withReactContent(Swal)
+
 const ListUserPage = () => {
+    const [visible, setVisible] = useState(false);
+    const showDrawer = () => {
+      setVisible(true);
+    };
+    const onClose = () => {
+      setVisible(false);
+    };
     const [data, setData] = useState([{}]);
     const [loading, setLoading] = useState(false);
     const [totalRows, setTotalRows] = useState(0);
@@ -27,7 +37,7 @@ const ListUserPage = () => {
               showCancelButton: true,
               icon: 'warning',
               showLoaderOnConfirm: true,
-              preConfirm: (login) => {
+              preConfirm: () => {
                 return axios.delete(configData.baseURL + `/users/`+id)
                   .then(response => {
                     if (response.status != 200) {
@@ -93,7 +103,7 @@ const ListUserPage = () => {
         {
           name: 'Action',
           button: true,
-          cell: (row:any) => <Button value={row.ID} onClick={() => handleDelete(row.ID)} variant="outline-danger" size="sm" ><TrashFill/></Button>,
+          cell: (row:any) => <Button value={row.ID} onClick={() => handleDelete(row.ID)}  danger size="small" icon={<DeleteOutlined />}></Button>,
         },
         
     ];
@@ -134,8 +144,7 @@ const ListUserPage = () => {
         
         
     };
-
-    const handlePageChange = (page: number, totalRows: number) => {
+    const handlePageChange = (page: number) => {
         console.log("page change handler")
         fetchUsers(page);
     };
@@ -150,13 +159,16 @@ const ListUserPage = () => {
         console.log("user page loaded");
     }, [])
     return (
+        <>
         <DataTable
             paginationRowsPerPageOptions={[2, 5, 10]}
             progressPending={loading}
-            actions={<Button onClick={() => {
+            actions={<Button
+                icon={<UserAddOutlined />}
+                onClick={() => {
                 history.push('/user/add')
             }} className="d-flex align-items-center"  >
-                <PlusCircle className="m-1" /> Add User</Button>}
+                 Add User</Button>}
 
             title="Users"
             columns={columns}
@@ -165,15 +177,18 @@ const ListUserPage = () => {
             pagination
             paginationServer
             paginationTotalRows={totalRows}
-            //    selectableRows
             onChangeRowsPerPage={handlePerRowsChange}
             onChangePage={handlePageChange}
         />
+        
+        </>
     )
 };
+
 const UserPage = ({ match }: { match: any }) => {
     return (
         <>
+        
             <Route exact path={match.url + "/add"} component={AddUserPage} />
             <Route exact path={match.url} component={
                 ListUserPage
