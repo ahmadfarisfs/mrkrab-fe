@@ -15,6 +15,8 @@ import ProjectPage from './pages/project/projects';
 import TransactionPage from './pages/transaction/transactions';
 import UserPage from "./pages/user/users";
 import DashboardPage from './pages/dashboard/dashboard';
+import 'antd/dist/antd.css'; // or 'antd/dist/antd.less'
+import './App.css';
 
 
 import { useState, useEffect } from 'react';
@@ -55,13 +57,17 @@ const App = () => {
           </Menu>
         </Sider>
         <Layout className="site-layout">
-          <Header className="site-layout-background" style={{ padding: 0 }} />
+          <Header className="site-layout-background" style={{ padding: 0,
+          backgroundColor:'white'
+          }} />
           <Content style={{ margin: '0 16px' }}>
 
             <div className="site-layout-background" style={{
               margin: '24px 16px',
               padding: 24,
               minHeight: 280,
+              borderRadius:5,
+//              border: '25px',
             }}>
               <Switch>
                 {

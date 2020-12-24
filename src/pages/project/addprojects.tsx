@@ -1,31 +1,102 @@
-import '../../App.css';
+//import '../../App.css';
 import { useForm } from 'react-hook-form';
 import React, { useEffect, useState } from 'react';
-import { PlusCircle, CashStack, Bricks, Cash, Trash, PlusCircleFill } from 'react-bootstrap-icons';
-import { Card, Row, Col, Form, Container, Button, Badge, InputGroup } from 'react-bootstrap';
-import { BrowserRouter, withRouter ,useHistory} from "react-router-dom";
+//import { PlusCircle, CashStack, Bricks, Cash, Trash, PlusCircleFill } from 'react-bootstrap-icons';
+//import { Card, Row, Col, Form, Container, Button, Badge, InputGroup } from 'react-bootstrap';
+import { BrowserRouter, withRouter, useHistory } from "react-router-dom";
 import { stringify } from 'querystring';
 import NumberFormat from 'react-number-format';
 import Swal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content'
 import configData from "../../config.json";
 import axios from 'axios';
+import {
+    UserAddOutlined, PlusOutlined,
+    DeleteOutlined, MinusCircleOutlined
+} from '@ant-design/icons';
+import { Form, Input, Button, Radio, Select, Space, Card, Avatar, InputNumber, Row, Col, Switch } from 'antd';
+import 'antd/dist/antd.css'; // or 'antd/dist/antd.less'
+import add from 'immutability-helper';
+const { Option } = Select;
 const MySwal = withReactContent(Swal)
 export interface IProjectPocket {
+    key: string;
     pocketName: string;
     pocketBudget: number;
+    useBudget: boolean;
+};
+export interface IProjectPocketSetting {
+    key: string;
     useBudget: boolean;
 };
 
 
 const AddProjectPage = () => {
+    const layout = {
+        labelCol: { span: 6 },
+        wrapperCol: { span: 16 },
+    };
+    const budgetLayout = {
+        wrapperCol: {
+            //offset: 6,
+            span: 16,
+        },
+    };
+    const tailLayout = {
+        wrapperCol: {
+            offset: 6,
+            span: 16,
+        },
+    };
+    const locale = "id-ID";
+    const currencyFormatter = (selectedCurrOpt: any) => (value: any) => {
+        return new Intl.NumberFormat(locale, {
+            style: "currency",
+            currency: "IDR",
+        }).format(value);
+    };
+
+    const currencyParser = (val: any) => {
+        try {
+            // for when the input gets clears
+            if (typeof val === "string" && !val.length) {
+                val = "0.0";
+            }
+
+            // detecting and parsing between comma and dot
+            var group = new Intl.NumberFormat(locale).format(1111).replace(/1/g, "");
+            var decimal = new Intl.NumberFormat(locale).format(1.1).replace(/1/g, "");
+            var reversedVal = val.replace(new RegExp("\\" + group, "g"), "");
+            reversedVal = reversedVal.replace(new RegExp("\\" + decimal, "g"), ".");
+            //  => 1232.21 €
+
+            // removing everything except the digits and dot
+            reversedVal = reversedVal.replace(/[^0-9.]/g, "");
+            //  => 1232.21
+
+            // appending digits properly
+            const digitsAfterDecimalCount = (reversedVal.split(".")[1] || []).length;
+            const needsDigitsAppended = digitsAfterDecimalCount > 2;
+
+            if (needsDigitsAppended) {
+                reversedVal = reversedVal * Math.pow(10, digitsAfterDecimalCount - 2);
+            }
+
+            return Number.isNaN(reversedVal) ? 0 : reversedVal;
+        } catch (error) {
+            console.error(error);
+        }
+    };
+    const [form] = Form.useForm();
     const history = useHistory();
+    const [isPocketUse, setUseBudgets] = useState(new Map<any, boolean>());
+    const [biggestBudgetKey, setBiggestBudgetKey] = useState(-1);
     const [budgets, setBudgets] = useState<IProjectPocket[]>([]);
     const onSubmit = (data: any) => {
         console.log(data)
         console.log(budgets)
         //prepare data
-        let budgetsSend : { Name: string,Budget:any }[]=[];
+        let budgetsSend: { Name: string, Budget: any }[] = [];
 
         budgets.forEach((item, index) => {
             budgetsSend.push({
@@ -33,183 +104,221 @@ const AddProjectPage = () => {
                 "Budget": item.useBudget ? item.pocketBudget : null
             })
         })
-        let projData={
-            "Name":data.ProjectName,
-            "Description":data.ProjectDescription,
-            "Budgets":budgetsSend,
+        let projData = {
+            "Name": data.ProjectName,
+            "Description": data.ProjectDescription,
+            "Budgets": budgetsSend,
         }
         console.log(projData)
         MySwal.fire(
             {
-              title: 'Create New Project ?',
-              //text: "Make sure to inform the password to the newly created user",
-              showCancelButton: true,
-              icon: 'question',
-              showLoaderOnConfirm: true,
-              preConfirm: (login) => {
-                return axios.post(configData.baseURL + `/projects`, projData)
-                  .then(response => {
-                    if (response.status != 200) {
-                      throw new Error(response.statusText)
-                    }
-                    console.log("ret data")
-                    console.log(response)
-                    return "OK"
-                  })
-                  .catch(error => {
-                    Swal.showValidationMessage(
-                      `Create Project Failed: ${error}`
-                    )
-                  })
-              },
-              allowOutsideClick: () => !Swal.isLoading()
+                title: 'Create New Project ?',
+                //text: "Make sure to inform the password to the newly created user",
+                showCancelButton: true,
+                icon: 'question',
+                showLoaderOnConfirm: true,
+                preConfirm: (login) => {
+                    return axios.post(configData.baseURL + `/projects`, projData)
+                        .then(response => {
+                            if (response.status != 200) {
+                                throw new Error(response.statusText)
+                            }
+                            console.log("ret data")
+                            console.log(response)
+                            return "OK"
+                        })
+                        .catch(error => {
+                            Swal.showValidationMessage(
+                                `Create Project Failed: ${error}`
+                            )
+                        })
+                },
+                allowOutsideClick: () => !Swal.isLoading()
             }
-          ).then((result) => {
+        ).then((result) => {
             if (result.isConfirmed) {
-              Swal.fire('Project Created!', '', 'success').then(()=>{
-                history.push('/project');
-              })
+                Swal.fire('Project Created!', '', 'success').then(() => {
+                    history.push('/project');
+                })
             }
-          })
+        })
     };
-    const { register, errors, handleSubmit, watch } = useForm({ mode: 'onChange', });
-    const onChangeLimit = (event: any, index: any) => {
-        console.log(event.target.checked);
-        console.log(index);
-        let items = [...budgets];
-        let item = { ...items[index] };
-        item.useBudget = event.target.checked;
+    useEffect(() => {
+        console.log("use effisPocketUse");
+        console.log(isPocketUse);
+    }, [isPocketUse])
+    const onChangeLimit = (value: any, key: any) => {
 
-        if (event.target.checked === false) {
-            item.pocketBudget = 0;
-        }
-        items[index] = item;
-        console.log(items);
-        setBudgets(items);
+        console.log(value);
+        console.log(key);
+        let newsMaps = isPocketUse;
+        let newMap = newsMaps.set(key, value === "unlimited" ? false : true);
+        // let newMap2 = add(newMap,);
+        //let newnew = new Map<any, boolean>();
+        let newnew = new Map(newMap);
+        console.log(newnew)
+        setUseBudgets(newnew);
+        //  console.log("isPocketUse");
+        //   console.log(isPocketUse);
+
     };
     return (
         <>
-            <Card>
+            <Card title="Add Project">
 
-                <Card.Body>
-                    <Card.Title>Add New Project </Card.Title>
-                    <Form className="mt-4 mb-3" onSubmit={handleSubmit(onSubmit)} noValidate>
-                        <Form.Group as={Row} controlId="projectName">
-                            <Form.Label column lg={2} >Name</Form.Label>
-                            <Col sm={10}>
-                                <Form.Control name="ProjectName" isInvalid={!!errors.ProjectName} ref={register({ required: true, minLength: 5, maxLength: 60 })} type="text" placeholder="Enter project name" />
-                                <Form.Control.Feedback type='invalid'>Name is required and must be more than 5 character and less than 60</Form.Control.Feedback>
-                            </Col>
-                        </Form.Group>
-                        <Form.Group as={Row} controlId="projectDescription">
-                            <Form.Label column lg={2} >Description</Form.Label>
-                            <Col sm={10}>
-                                <Form.Control ref={register} name="ProjectDescription" type="text" as="textarea" rows={3} placeholder="Enter project Description" />
-                                <Form.Control.Feedback type='invalid'>Required</Form.Control.Feedback>
 
-                            </Col>
-                        </Form.Group>
-                        {
-                            budgets.map((item, index) => {
-                                return (
-                                    <Row key={index} className="mt-2 mb-2">
-                                        <Col sm={1} lg={1}>
-                                            <Badge className="align-middle text-center" variant="primary">{index + 1}</Badge>
-                                        </Col>
-                                        <Col >
+                <Form {...layout} onFinish={(val) => {
+                    console.log(val);
+                }} >
+                    <Form.Item
+                        key="prjName"
+                        name="ProjectName"
+                        label="Name"
+                        rules={[
+                            {
+                                required: true,
+                                message: 'Name must be more than 5 character and less than 60',
+                                min: 5,
+                                max: 60,
+                            },
+                        ]}
+                    >
+                        <Input />
+                    </Form.Item>
 
-                                            <Form.Control
+                    <Form.Item
+                        key="prjDesc"
 
-                                                isInvalid={!!errors["PocketName" + index]}
-                                                name={"PocketName" + index} ref={register({ required: true })}
-                                                onChange={(event) => {
-                                                    let items = [...budgets];
-                                                    let item = { ...items[index] };
-                                                    item.pocketName = event.target.value;
-                                                    items[index] = item;
-                                                    setBudgets(items);
-                                                    console.log(budgets);
-                                                }}  size="sm" type="text" placeholder="Pocket Name" />
-                                            <Form.Control.Feedback type='invalid'>Required</Form.Control.Feedback>
-                                        </Col>
-                                        <Col sm={2}>
+                        name="ProjectDescription"
+                        label="Description"
+                        rules={[
+                            {
+                                required: true,
+                            },
+                        ]}
+                    >
+                        <Input.TextArea />
+                    </Form.Item>
+                    <Form.Item label="Pockets"  >
+                        <Form.List
 
-                                            <Form.Check
-                                                name={"PocketUseLimit" + index}
-                                                ref={register}
-                                                checked={budgets[index].useBudget}
-                                                label="Use Limit"
-                                                onChange={(evt) => onChangeLimit(evt, index)}
-                                                id={"useLimitCheck" + index}
-                                                feedbackTooltip
-                                            />
+                            name="Pocket">
 
-                                        </Col>
-                                        <Col>
-                                            <InputGroup size="sm">
-                                                <InputGroup.Prepend>
-                                                    <InputGroup.Text
+                            {(fields, { add, remove }) => (
+                                <>
+                                    {fields.map(field => (
 
-                                                        id={"inputGroupBudget" + index}>Rp</InputGroup.Text>
-                                                </InputGroup.Prepend>
+                                        <>
 
-                                                <NumberFormat
-                                                    ref={register}
-                                                    onChange={(event) => {
-                                                        let items = [...budgets];
-                                                        let item = { ...items[index] };
-                                                        item.pocketBudget = parseInt(event.target.value.replace(/\D/g, ''));
-                                                        items[index] = item;
-                                                        setBudgets(items);
-                                                        console.log(budgets);
-                                                    }}
-                                                    //isInvalid={!!errors["PocketBudget"+index]}
-                                                    name={"PocketBudget" + index}
-                                                    // value ={budgets[index].pocketBudget}// == 0 ? '':budgets[index].pocketBudget}
-                                                    //  value={budgets[index].useBudget? budgets[index].pocketBudget :'' }
-                                                    thousandSeparator={true}
-                                                    customInput={Form.Control} id={"limitBudget" + index}
-                                                    disabled={!budgets[index].useBudget}
-                                                    //  type="number"
-                                                    //  size="sm"
-                                                    //https://stackoverflow.com/questions/29537299/react-how-to-update-state-item1-in-state-using-setstate 
-                                                    allowNegative={false}
-                                                    placeholder="Pocket Limit"
-                                                />
-                                                <Form.Control.Feedback type='invalid'>Required</Form.Control.Feedback>
-                                            </InputGroup>
-                                        </Col>
-                                        <Col sm={1}>
+                                            <Space key={field.key} style={{ display: 'flex', marginBottom: 8 }} align="center">
+                                                <Form.Item
 
-                                            <Button size="sm" variant="danger" onClick={() => {
-                                                console.log("remove " + index);
-                                                const newList = budgets.filter((item, id) => id !== index);
-                                                console.log(newList);
-                                                setBudgets(newList);
-                                            }}><Trash size={15} className="align-middle" /></Button>
-                                        </Col>
+                                                    {...field}
+                                                    name={[field.name, 'PocketName']}
+                                                    fieldKey={[field.fieldKey, 'PocketName']}
+                                                    rules={[{ required: true, message: 'Please Input Pocket Name' }]}
 
-                                    </Row>
-                                );
-                            })
-                        }
-                        <Row>
-                            <Col></Col>
-                            <Col className="text-center">
-                                <Button className="align-middle" size="sm" variant="success" type="" onClick={() => {
-                                    let newPocket: IProjectPocket = { pocketBudget: 0, pocketName: "", useBudget: false, };
-                                    setBudgets([...budgets, newPocket])
-                                }}>
-                                    Add Pocket
-  </Button></Col>
-                            <Col></Col>
-                        </Row>
+                                                >
+                                                    <Input placeholder="Enter Pocket Name" />
+                                                </Form.Item>
 
-                        <Button variant="primary" type="submit" className="m-2">
+
+
+                                                <Form.Item
+
+                                                    {...field}
+                                                    name={[field.name, 'PocketUseBudget']}
+                                                    fieldKey={[field.fieldKey, 'PocketUseBudget']}
+                                                    rules={[{ required: true, message: 'Please select' }]}
+
+                                                >
+
+
+                                                    <Select
+
+                                                        key={field.key}
+                                                        style={{
+                                                            width: "100px"
+                                                        }}
+                                                        // defaultValue="unlimited"
+                                                        onChange={
+                                                            (value) => { onChangeLimit(value, field.key) }
+                                                        } >
+                                                        <Option value="limited">w/ Limit</Option>
+                                                        <Option value="unlimited">w/o Limit</Option>
+                                                    </Select>
+                                                </Form.Item>
+                                                <Form.Item
+
+                                                    {...field}
+                                                    name={[field.name, 'PocketBudget']}
+                                                    fieldKey={[field.fieldKey, 'PocketBudget']}
+                                                    rules={[{
+                                                        required: isPocketUse.get(field.key),
+                                                        message: 'Missing Budget',
+                                                        min: isPocketUse.get(field.key) ? 1 : 0,
+                                                    }]}
+
+                                                >
+
+                                                    <InputNumber
+                                                        disabled={!isPocketUse.get(field.key)}
+                                                        formatter={currencyFormatter("Rupiah::IDR")}
+                                                        parser={currencyParser}
+                                                        style={{ width: '200px' }} />
+
+                                                </Form.Item>
+
+                                                <Form.Item {...field}
+
+                                                >
+                                                    <MinusCircleOutlined
+
+                                                        key={field.key}
+
+                                                        onClick={() => {
+                                                            let newMaps = isPocketUse;
+                                                            newMaps.delete(field.key);
+                                                            let newnew = new Map(newMaps);
+                                                            setUseBudgets(newnew);
+                                                            remove(field.name)
+                                                        }} />
+
+                                                </Form.Item>
+
+                                            </Space>
+                                        </>
+
+                                    ))}
+                                    <Form.Item>
+                                        <Button type="dashed" onClick={() => {
+
+                                            let newsMaps = isPocketUse;
+
+                                            let newMap;
+
+                                            newMap = newsMaps.set(biggestBudgetKey + 1, false);
+                                            setBiggestBudgetKey(biggestBudgetKey + 1);
+
+                                            setUseBudgets(newMap);
+                                            add();
+                                        }} block icon={<PlusOutlined />}>
+                                            Add Pocket
+                                        </Button>
+                                    </Form.Item>
+                                </>
+                            )}
+                        </Form.List>
+                    </Form.Item>
+
+
+                    <Form.Item {...tailLayout}>
+                        <Button type="primary" htmlType="submit">
                             Submit
-  </Button>
-                    </Form>
-                </Card.Body>
+        </Button>
+                    </Form.Item>
+                </Form>
+
             </Card>
         </>
     );

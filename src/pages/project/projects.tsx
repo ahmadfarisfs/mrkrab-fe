@@ -2,45 +2,26 @@ import React, { useEffect, useState } from 'react';
 import DataTable from "react-data-table-component";
 import movies from "../../movies";
 import axios from 'axios';
+import { Button, Drawer, Badge,Switch } from 'antd';
 import { useHistory, Route } from 'react-router-dom';
-import { PlusCircle, CashStack, Bricks, Cash, TrashFill } from 'react-bootstrap-icons';
-import { Card, Row, Col, Form, Container, Button, ButtonGroup, Badge,CardGroup } from 'react-bootstrap';
 import AddProjectPage from './addprojects';
 import moment from 'moment';
 import configData from "../../config.json";
-
+import {
+  UserAddOutlined,
+  DeleteOutlined
+} from '@ant-design/icons';
 import Swal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content'
 const MySwal = withReactContent(Swal)
-const FilterComponent = () => {
-  return (
-
-    <Form>
-      <Form.Group controlId="exampleForm.SelectCustomSizeSm">
-        <Form.Label>Status: </Form.Label>
-        <Form.Control as="select" size="sm" custom>
-          <option>All</option>
-          <option>Open</option>
-          <option>Close</option>
-        </Form.Control>
-      </Form.Group>
-
-
-
-    </Form>
-
-
-
-
-
-  )
-};
 
 const ListProject = () => {
   const [data, setData] = useState([{}]);
   const [loading, setLoading] = useState(false);
   const [totalRows, setTotalRows] = useState(0);
   const [perPage, setPerPage] = useState(10);
+  const [currentPage, setCurrentPage] = useState(1);
+
   const history = useHistory();
   const handleSetStatus = (id: any, status: string) => {
     MySwal.fire(
@@ -74,7 +55,7 @@ const ListProject = () => {
     ).then((result) => {
       if (result.isConfirmed) {
         Swal.fire('Status Set!', '', 'success').then(() => {
-          history.go(0);
+          fetchProjects(currentPage,perPage);
         })
       }
     })
@@ -109,7 +90,8 @@ const ListProject = () => {
     ).then((result) => {
       if (result.isConfirmed) {
         Swal.fire('Project Deleted!', '', 'success').then(() => {
-          history.go(0);
+         // history.go(0);
+         fetchProjects(currentPage,perPage);
         })
       }
     })
@@ -135,9 +117,14 @@ const ListProject = () => {
       name: "Status",
       selector: "IsOpen",
       sortable: false,
+      button:true,
       cell: (row: any) => <>
-        {      row.IsOpen ? <Badge variant="success">Open</Badge> :
-          <Badge variant="warning">Closed</Badge>
+        {//      row.IsOpen ?
+        <Switch checkedChildren="Open" 
+        onClick={() => {
+          handleSetStatus(row.ID, row.IsOpen ? "close" : "open")
+        }}
+        unCheckedChildren="Closed" checked={row.IsOpen}  /> 
         }
 
 
@@ -154,16 +141,8 @@ const ListProject = () => {
       name: 'Action',
       button: true,
       cell: (row: any) => <>
-        <ButtonGroup size="sm" aria-label="Project Action">
-          <Button
-            onClick={() => {
-              handleSetStatus(row.ID, row.IsOpen ? "close" : "open")
-            }}
-            variant={row.IsOpen ? "outline-warning" : "outline-success"}>{row.IsOpen ? "Close" :
-              "Open"}</Button>
-          <Button onClick={() => handleDelete(row.ID)} variant="outline-danger"><TrashFill /></Button>
-        </ButtonGroup>
-
+          <Button onClick={() => handleDelete(row.ID)} size="small" danger icon={<DeleteOutlined />}></Button>
+     
       </>,
     },
   ];
@@ -208,6 +187,7 @@ const ListProject = () => {
 
   const handlePageChange = (page: number, totalRows: number) => {
     console.log("page change handler")
+    setCurrentPage(page);
     fetchProjects(page);
   };
 
@@ -222,16 +202,16 @@ const ListProject = () => {
   }, [])
   return (
     <DataTable
-    striped
-    expandableRows
-    expandableRowsComponent={<ExpandedProject/>}
-    expandOnRowClicked
+      striped
+     // expandableRows
+     // expandableRowsComponent={<ExpandedProject />}
+     // expandOnRowClicked
       paginationRowsPerPageOptions={[2, 5, 10]}
       progressPending={loading}
       actions={<Button onClick={() => {
         history.push('/project/add');
-      }} className="d-flex align-items-center"  >
-        <PlusCircle className="m-1" /> Add Project</Button>}
+      }} icon={<UserAddOutlined/>}  >
+         Add Project</Button>}
 
       title="Projects"
       columns={columns}
@@ -247,59 +227,59 @@ const ListProject = () => {
   );
 };
 
-const ExpandedProject = ()=>{
+const ExpandedProject = () => {
   return (<>
-<CardGroup className="mb-3 mt-1" >
-  <Card bg="secondary" text="white" >
-    
-    <Card.Body>
-      <Card.Title  className="text-center">Rp 10,000,000</Card.Title>
-      <Card.Text  className="text-center">
-Total Expense
+    {/* <CardGroup className="mb-3 mt-1" >
+      <Card bg="secondary" text="white" >
+
+        <Card.Body>
+          <Card.Title className="text-center">Rp 10,000,000</Card.Title>
+          <Card.Text className="text-center">
+            Total Expense
       </Card.Text>
-    </Card.Body>
-    <Card.Footer color="white">
-      <small className="text-muted">From 100 transactions</small>
-    </Card.Footer>
-  </Card>
-  <Card>
-    
-    <Card.Body>
-      <Card.Title>Rp 200,000,000</Card.Title>
-      <Card.Text>
-        Total Income
+        </Card.Body>
+        <Card.Footer color="white">
+          <small className="text-muted">From 100 transactions</small>
+        </Card.Footer>
+      </Card>
+      <Card>
+
+        <Card.Body>
+          <Card.Title>Rp 200,000,000</Card.Title>
+          <Card.Text>
+            Total Income
       </Card.Text>
-    </Card.Body>
-    <Card.Footer>
-      <small className="text-muted">From 4 transactions</small>
-    </Card.Footer>
-  </Card>
-  <Card>
-    
-    <Card.Body>
-      <Card.Title>Rp 20,000,000</Card.Title>
-      <Card.Text>
-        Account Payable
+        </Card.Body>
+        <Card.Footer>
+          <small className="text-muted">From 4 transactions</small>
+        </Card.Footer>
+      </Card>
+      <Card>
+
+        <Card.Body>
+          <Card.Title>Rp 20,000,000</Card.Title>
+          <Card.Text>
+            Account Payable
       </Card.Text>
-    </Card.Body>
-    <Card.Footer>
-      <small className="text-muted">From 24 transactions</small>
-    </Card.Footer>
-  </Card>
-  <Card>
-    
-    <Card.Body>
-      <Card.Title>Rp 20,000,000</Card.Title>
-      <Card.Text>
-        Account Receivable
+        </Card.Body>
+        <Card.Footer>
+          <small className="text-muted">From 24 transactions</small>
+        </Card.Footer>
+      </Card>
+      <Card>
+
+        <Card.Body>
+          <Card.Title>Rp 20,000,000</Card.Title>
+          <Card.Text>
+            Account Receivable
       </Card.Text>
-    </Card.Body>
-    <Card.Footer>
-      <small className="text-muted">From 24 transactions</small>
-    </Card.Footer>
-  </Card>
-</CardGroup>
-  
+        </Card.Body>
+        <Card.Footer>
+          <small className="text-muted">From 24 transactions</small>
+        </Card.Footer>
+      </Card>
+    </CardGroup> */}
+
   </>)
 };
 
