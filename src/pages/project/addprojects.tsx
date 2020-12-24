@@ -98,10 +98,10 @@ const AddProjectPage = () => {
         //prepare data
         let budgetsSend: { Name: string, Budget: any }[] = [];
 
-        budgets.forEach((item, index) => {
+        data.Pocket.forEach((item:any, index:any) => {
             budgetsSend.push({
-                "Name": item.pocketName,
-                "Budget": item.useBudget ? item.pocketBudget : null
+                "Name": item.PocketName,
+                "Budget": item.PocketUseBudget==="limited" ? item.PocketBudget : null
             })
         })
         let projData = {
@@ -167,9 +167,7 @@ const AddProjectPage = () => {
             <Card title="Add Project">
 
 
-                <Form {...layout} onFinish={(val) => {
-                    console.log(val);
-                }} >
+                <Form {...layout} onFinish={onSubmit} >
                     <Form.Item
                         key="prjName"
                         name="ProjectName"
@@ -256,7 +254,7 @@ const AddProjectPage = () => {
                                                     rules={[{
                                                         required: isPocketUse.get(field.key),
                                                         message: 'Missing Budget',
-                                                        min: isPocketUse.get(field.key) ? 1 : 0,
+                                                      //  min: isPocketUse.get(field.key) ? 0 : 1,
                                                     }]}
 
                                                 >
