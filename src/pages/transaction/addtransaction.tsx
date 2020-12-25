@@ -182,7 +182,7 @@ const AddTransactionPage = () => {
 
 
                                     { element.Limit === null ?
-                                        <Tag color="green" style={{ float: 'right' }}>unlimited</Tag>
+                                        <Tag color="green" style={{ float: 'right'  }}>unlimited</Tag>
                                         :
                                         <Tag color="orange" style={{ float: 'right' }}>limited: {formatter.format(element.Limit)}</Tag>
 
