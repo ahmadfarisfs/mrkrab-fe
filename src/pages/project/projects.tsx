@@ -206,7 +206,7 @@ const ListProject = () => {
      // expandableRows
      // expandableRowsComponent={<ExpandedProject />}
      // expandOnRowClicked
-      paginationRowsPerPageOptions={[2, 5, 10]}
+     // paginationRowsPerPageOptions={[2, 5, 10]}
       progressPending={loading}
       actions={<Button onClick={() => {
         history.push('/project/add');
@@ -225,62 +225,6 @@ const ListProject = () => {
       onChangePage={handlePageChange}
     />
   );
-};
-
-const ExpandedProject = () => {
-  return (<>
-    {/* <CardGroup className="mb-3 mt-1" >
-      <Card bg="secondary" text="white" >
-
-        <Card.Body>
-          <Card.Title className="text-center">Rp 10,000,000</Card.Title>
-          <Card.Text className="text-center">
-            Total Expense
-      </Card.Text>
-        </Card.Body>
-        <Card.Footer color="white">
-          <small className="text-muted">From 100 transactions</small>
-        </Card.Footer>
-      </Card>
-      <Card>
-
-        <Card.Body>
-          <Card.Title>Rp 200,000,000</Card.Title>
-          <Card.Text>
-            Total Income
-      </Card.Text>
-        </Card.Body>
-        <Card.Footer>
-          <small className="text-muted">From 4 transactions</small>
-        </Card.Footer>
-      </Card>
-      <Card>
-
-        <Card.Body>
-          <Card.Title>Rp 20,000,000</Card.Title>
-          <Card.Text>
-            Account Payable
-      </Card.Text>
-        </Card.Body>
-        <Card.Footer>
-          <small className="text-muted">From 24 transactions</small>
-        </Card.Footer>
-      </Card>
-      <Card>
-
-        <Card.Body>
-          <Card.Title>Rp 20,000,000</Card.Title>
-          <Card.Text>
-            Account Receivable
-      </Card.Text>
-        </Card.Body>
-        <Card.Footer>
-          <small className="text-muted">From 24 transactions</small>
-        </Card.Footer>
-      </Card>
-    </CardGroup> */}
-
-  </>)
 };
 
 const ProjectPage = ({ match }: { match: any }) => {
