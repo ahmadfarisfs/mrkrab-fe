@@ -39,7 +39,7 @@ const ProjectSelector = (props:any) => {
     const [pockets, setPockets] = useState<any[]>([{}]);
     // const [form] = Form.useForm();
     const [projectData, setProjectData] = useState<IProjectData>();
-    const [projectDetails, setProjectDetails] = useState([]);
+    const [projectDetails, setProjectDetails] = useState<any[]>([{}]);
     const [lastFetchProjectID, setLastFetchProjectID] = useState(0);
     const fetchProject = async (value: any) => {
         console.log('fetching project', value);
@@ -51,7 +51,7 @@ const ProjectSelector = (props:any) => {
         let response;
         try {
             response = await axios.get(
-                configData.baseURL + `/projects?range=[` + 0 + `,` + 4 + `]&search={"name":"` + value + `"}`,
+                configData.baseURL + `/projects?range=[` + 0 + `,` + 4 + `]&search={"name":"` + value + `"}&sort=["created_at","desc"]`,
             );
             if (response.status != 200) {
                 throw new Error('Unexpected response code');
@@ -106,10 +106,10 @@ const ProjectSelector = (props:any) => {
     return (<>
         <Form.Item name="Project" label="Project" rules={[{ required: true }]}>
             <Select
-
+// dropdownRender={<Card></Card>}
                 showSearch
                 loading={isFetchingProject}
-                placeholder="Select project"
+                placeholder="Select project, type to search for more.."
                 notFoundContent={isFetchingProject ? <Spin size="small" /> : <Empty />}
                 filterOption={false}
                 onSearch={fetchProject}
@@ -120,7 +120,12 @@ const ProjectSelector = (props:any) => {
 
                     projectData && projectData.accountID &&
                     projectData.accountID.map((element, index) => {
-                        return <Option value={element}>{projectData?.name[index]}</Option>
+                        return <Option value={element}>{projectData?.name[index]}{
+                            projectDetails[index].IsOpen?
+                            <Badge status="success" text="Open" style={{float:'right'}}></Badge>
+                            :
+                            <Badge status="error" style={{float:'right'}} text="Closed"></Badge>
+                        }</Option>
                     })
                 }
 
@@ -132,7 +137,6 @@ const ProjectSelector = (props:any) => {
             <Select
                 defaultActiveFirstOption={false}
                 allowClear
-
 
                 loading={isFetchingProject}
                 placeholder="Select pocket or leave blank for project transaction"
@@ -154,9 +158,11 @@ const ProjectSelector = (props:any) => {
                         return (<Option value={element.ID}>
                             {element?.Name}
                             { element.Limit === null ?
-                                <Tag color="green" style={{ float: 'right', verticalAlign: "middle" }}>unlimited</Tag>
+                            <Badge status="success" text="unlimited" style={{float:'right'}}></Badge>
+                               
                                 :
-                                <Tag color="orange" style={{ float: 'right', verticalAlign: "middle" }}>limited: {formatCurrency(element.Limit)}</Tag>
+                                <Badge status="warning" text={"limited: "+formatCurrency(element.Limit)} style={{float:'right'}}></Badge>
+                               
 
                             }  </Option>)
                     })
