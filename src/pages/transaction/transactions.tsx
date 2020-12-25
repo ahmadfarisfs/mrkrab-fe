@@ -91,7 +91,7 @@ const ListTransaction = () => {
         let response;
         try {
           response = await axios.get(
-            configData.baseURL + `/transactions?range=[` + fromIndex + `,` + toIndex + `]`,
+            configData.baseURL + `/transactions?range=[` + fromIndex + `,` + toIndex + `]&filter={"account_ids":[8]}`,
           );
           if (response.status != 200) {
             throw new Error('Unexpected response code');

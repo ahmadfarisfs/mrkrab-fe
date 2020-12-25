@@ -10,6 +10,7 @@ import Swal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content'
 import configData from "../../config.json";
 import axios from 'axios';
+ import{ currencyFormatter, currencyParser} from '../../tools/format';
 import {
     UserAddOutlined, PlusOutlined,
     DeleteOutlined, MinusCircleOutlined
@@ -48,45 +49,6 @@ const AddProjectPage = () => {
             span: 16,
         },
     };
-    const locale = "id-ID";
-    const currencyFormatter = (selectedCurrOpt: any) => (value: any) => {
-        return new Intl.NumberFormat(locale, {
-            style: "currency",
-            currency: "IDR",
-        }).format(value);
-    };
-
-    const currencyParser = (val: any) => {
-        try {
-            // for when the input gets clears
-            if (typeof val === "string" && !val.length) {
-                val = "0.0";
-            }
-
-            // detecting and parsing between comma and dot
-            var group = new Intl.NumberFormat(locale).format(1111).replace(/1/g, "");
-            var decimal = new Intl.NumberFormat(locale).format(1.1).replace(/1/g, "");
-            var reversedVal = val.replace(new RegExp("\\" + group, "g"), "");
-            reversedVal = reversedVal.replace(new RegExp("\\" + decimal, "g"), ".");
-            //  => 1232.21 €
-
-            // removing everything except the digits and dot
-            reversedVal = reversedVal.replace(/[^0-9.]/g, "");
-            //  => 1232.21
-
-            // appending digits properly
-            const digitsAfterDecimalCount = (reversedVal.split(".")[1] || []).length;
-            const needsDigitsAppended = digitsAfterDecimalCount > 2;
-
-            if (needsDigitsAppended) {
-                reversedVal = reversedVal * Math.pow(10, digitsAfterDecimalCount - 2);
-            }
-
-            return Number.isNaN(reversedVal) ? 0 : reversedVal;
-        } catch (error) {
-            console.error(error);
-        }
-    };
     const [form] = Form.useForm();
     const history = useHistory();
     const [isPocketUse, setUseBudgets] = useState(new Map<any, boolean>());
@@ -98,7 +60,7 @@ const AddProjectPage = () => {
         //prepare data
         let budgetsSend: { Name: string, Budget: any }[] = [];
 
-        data.Pocket.forEach((item:any, index:any) => {
+        data.Pocket?.forEach((item:any, index:any) => {
             budgetsSend.push({
                 "Name": item.PocketName,
                 "Budget": item.PocketUseBudget==="limited" ? item.PocketBudget : null
@@ -261,7 +223,7 @@ const AddProjectPage = () => {
 
                                                     <InputNumber
                                                         disabled={!isPocketUse.get(field.key)}
-                                                        formatter={currencyFormatter("Rupiah::IDR")}
+                                                        formatter={currencyFormatter}
                                                         parser={currencyParser}
                                                         style={{ width: '200px' }} />
 
