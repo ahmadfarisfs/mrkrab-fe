@@ -23,13 +23,15 @@ import { formatCurrency } from './format'
 
 
 
-const ProjectSelector = (props:any) => {
+const ProjectSelector = (props: any) => {
     const { Option } = Select;
-    let onProjectSelected=props.onProjectSelected;
-    let  onBudgetSelected=props.onBudgetSelected;
-    let  forms= props.forms;
+    let onProjectSelected = props.onProjectSelected;
+    let onBudgetSelected = props.onBudgetSelected;
+    let forms = props.forms;
+    let pocketNotNeeded = props.pocketNotNeeded;
+    let projectOptional = props.projectOptional;
     // {onProjectSelected:any,onBudgetSelected:any,forms:any}
-
+    console.log(projectOptional);
     const MySwal = withReactContent(Swal);
     interface IProjectData {
         name: string[];
@@ -41,6 +43,8 @@ const ProjectSelector = (props:any) => {
     const [projectData, setProjectData] = useState<IProjectData>();
     const [projectDetails, setProjectDetails] = useState<any[]>([{}]);
     const [lastFetchProjectID, setLastFetchProjectID] = useState(0);
+    const [usePocket, setUsePocket] = useState(true);
+
     const fetchProject = async (value: any) => {
         console.log('fetching project', value);
 
@@ -90,10 +94,17 @@ const ProjectSelector = (props:any) => {
         let selectedProj: any = projectDetails.filter((element: any) => element.ID === val)[0];
         console.log("seleted proj budgets ");
         console.log(selectedProj);
-        forms.setFieldsValue({
-            Pocket: selectedProj.Budgets.length === 0 ? 'No Pocket' : null
-        })
-        setPockets(selectedProj.Budgets);
+        if (selectedProj?.Budgets) {
+            forms.setFieldsValue({
+                Pocket: selectedProj.Budgets?.length === 0 ? null : null
+            })
+            setPockets(selectedProj.Budgets);
+        } else {
+            forms.setFieldsValue({
+                Pocket: null
+            })
+            setPockets([]);
+        }
         if (_.isFunction(onProjectSelected)) {
             onProjectSelected(val);
         }
@@ -104,9 +115,10 @@ const ProjectSelector = (props:any) => {
         fetchProject("");
     }, []);
     return (<>
-        <Form.Item name="Project" label="Project" rules={[{ required: true }]}>
+        <Form.Item name="Project" label="Project" rules={[{ required: !projectOptional }]}>
             <Select
-// dropdownRender={<Card></Card>}
+                allowClear={projectOptional}
+                // dropdownRender={<Card></Card>}
                 showSearch
                 loading={isFetchingProject}
                 placeholder="Select project, type to search for more.."
@@ -114,6 +126,7 @@ const ProjectSelector = (props:any) => {
                 filterOption={false}
                 onSearch={fetchProject}
                 onChange={onProjectChange}
+                onClear={()=>{setUsePocket(false)}}
                 style={{ width: '100%' }}
             >
                 {
@@ -121,56 +134,84 @@ const ProjectSelector = (props:any) => {
                     projectData && projectData.accountID &&
                     projectData.accountID.map((element, index) => {
                         return <Option value={element}>{projectData?.name[index]}{
-                            projectDetails[index].IsOpen?
-                            <Badge status="success" text="Open" style={{float:'right'}}></Badge>
-                            :
-                            <Badge status="error" style={{float:'right'}} text="Closed"></Badge>
+                            projectDetails[index].IsOpen ?
+                                <Badge status="success" text="Open" style={{ float: 'right' }}></Badge>
+                                :
+                                <Badge status="error" style={{ float: 'right' }} text="Closed"></Badge>
                         }</Option>
                     })
                 }
 
             </Select>
         </Form.Item>
-        <Form.Item hidden={(!pockets || pockets.length === 0)} name="Pocket" label="Pocket"
 
-        >
-            <Select
-                defaultActiveFirstOption={false}
-                allowClear
+        <Form.Item
+       
+            hidden={ pockets.length == 0 || pocketNotNeeded}
+            style={{ marginBottom: 0 }}
+            label="Use Pocket">
 
-                loading={isFetchingProject}
-                placeholder="Select pocket or leave blank for project transaction"
-                disabled={!pockets || pockets.length === 0}
-                notFoundContent={isFetchingProject ? <Spin size="small" /> : <Empty />}
-                onChange={(v) => {
-                    if (_.isFunction(onBudgetSelected)) {
-                        onBudgetSelected(v);
-                    };
 
-                    console.log(v);
+            <Form.Item  style={{ display: 'inline-block', float: "left" }}>
+                <Switch 
+                // checked
+
+                 defaultChecked
+                onChange={(e)=>{
+                    if (!e){
+
+                    }//clear filter pocketID
+                    setUsePocket(e)
+                    
                 }}
-                style={{ width: '100%' }}
+                />
+            </Form.Item>
+
+            <Form.Item
+                hidden={!usePocket }
+                name="Pocket"
+            // label="Pocket"
+                rules={[{required: usePocket && pockets.length!==0 &&!pocketNotNeeded}]}
             >
-                {
 
-                    pockets &&
-                    pockets.map((element, index) => {
-                        return (<Option value={element.ID}>
-                            {element?.Name}
-                            { element.Limit === null ?
-                            <Badge status="success" text="unlimited" style={{float:'right'}}></Badge>
-                               
-                                :
-                                <Badge status="warning" text={"limited: "+formatCurrency(element.Limit)} style={{float:'right'}}></Badge>
-                               
+                <Select
+                    value={(!pockets || pockets.length === 0 || pocketNotNeeded || !usePocket) && null}
+                    
+                    defaultActiveFirstOption={false}
+                    // allowClear
+                    loading={isFetchingProject}
+                    placeholder="Select pocket or leave blank for project transaction"
+                    disabled={!pockets || pockets.length === 0 || pocketNotNeeded}
+                    notFoundContent={isFetchingProject ? <Spin size="small" /> : <Empty />}
+                    onChange={(v) => {
+                        if (_.isFunction(onBudgetSelected)) {
+                            onBudgetSelected(v);
+                        };
 
-                            }  </Option>)
-                    })
+                        console.log(v);
+                    }}
+                    style={{ width: '80%', float: "right", display: 'inline-block' }}
+                >
+                    {
 
-                }
+                        pockets && pockets.length != 0 &&
+                        pockets.map((element, index) => {
+                            return (<Option value={element.ID}>
+                                {element?.Name}
+                                { element.Limit == null ?
+                                    <Badge status="success" text="unlimited" style={{ float: 'right' }}></Badge>
 
-            </Select>
+                                    :
+                                    <Badge status="warning" text={"limited: " + formatCurrency(element.Limit)} style={{ float: 'right' }}></Badge>
 
+
+                                }  </Option>)
+                        })
+
+                    }
+
+                </Select>
+            </Form.Item>
         </Form.Item>
     </>)
 }

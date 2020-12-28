@@ -159,6 +159,23 @@ const AddProjectPage = () => {
                     >
                         <Input.TextArea />
                     </Form.Item>
+                    <Form.Item
+                        key="prjBudget"
+                        name="ProjectBudget"
+                        label="Budget"
+                        rules={[
+                            {
+                                required: true,
+                            },
+                        ]}
+                    >
+                        <InputNumber style={{width:"100%"}} 
+                        formatter={currencyFormatter}
+                        parser={currencyParser}
+                        min={0}
+                        />
+                    </Form.Item>
+                    
                     <Form.Item label="Pockets"  >
                         <Form.List
 
@@ -204,8 +221,8 @@ const AddProjectPage = () => {
                                                         onChange={
                                                             (value) => { onChangeLimit(value, field.key) }
                                                         } >
-                                                        <Option value="limited">w/ Limit</Option>
-                                                        <Option value="unlimited">w/o Limit</Option>
+                                                        <Option key={field.key+"limited"} value="limited">w/ Limit</Option>
+                                                        <Option key={field.key+"unlimited"}value="unlimited">w/o Limit</Option>
                                                     </Select>
                                                 </Form.Item>
                                                 <Form.Item

@@ -1,5 +1,12 @@
 # CoreUI React version
 
+# TODO
+1. income cuma bisa masuk project, pocket gak bisa
+2. pocket dapet duit hanya dari transfer
+3. Nilai project => liat dari total expense from total keluar dari boundary
+4. limit = total expense of pocket
+5. trf antar projrct gabisa, hanya bisa ke pool
+6. pooling account c
 ## Intro 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app)
 

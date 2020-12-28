@@ -6,9 +6,11 @@ import AddTransactionPage from './addtransaction';
 import axios from 'axios';
 import moment from 'moment';
 import configData from "../../config.json";
+import { formatCurrency } from '../../tools/format'
+
 import {
-  UserAddOutlined,
-  DeleteOutlined,CheckOutlined,CloseOutlined
+  UserAddOutlined, CaretUpOutlined, CaretDownOutlined,
+  DeleteOutlined, CheckOutlined, CloseOutlined
 } from '@ant-design/icons';
 import Swal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content'
@@ -16,51 +18,16 @@ import 'antd/dist/antd.css';
 import { Button, Drawer, Badge, Switch, Card, Form, Space, Input, Col, Row, Radio, DatePicker } from 'antd';
 import ProjectSelector from '../../tools/project';
 import { useForm } from 'antd/lib/form/Form';
+import _ from 'lodash';
 const MySwal = withReactContent(Swal)
-//import { PlusCircle, CashStack, Bricks, Cash } from 'react-bootstrap-icons';
-//import { Card, Button, Row, Col, Form, Container } from 'react-bootstrap';
 
-// const FilterComponent = () => {
-//     return (
-//         <Container fluid className="p-0">
-//             <Row>
-//                 <Col ><Card style={{ width: '100%' }}>
-//                     <Card.Header>Summary</Card.Header>
-//                     <Card.Body>
-//                         <Row>
-//                             <Col>Total Debit</Col>
-//                             <Col>Total Credit</Col>
-//                             <Col>Total Transaction</Col>
-
-//                         </Row>
-
-//                     </Card.Body>
-//                 </Card></Col>
-//                 <Col lg={3}><Card style={{ width: '100%' }}>
-
-//                     <Card.Body>
-//                         <Card.Title>Card Title</Card.Title>
-//                         <Card.Text>
-//                             Some quick example text to build on the card title and make up the bulk of
-//                             the card's content.
-//     </Card.Text>
-//                         <Button variant="primary">Go somewhere</Button>
-//                     </Card.Body>
-//                 </Card></Col>
-//             </Row>
-
-//         </Container>
-
-
-
-//     )
-// };
 
 const ListTransaction = () => {
+  moment.locale("id");
   const [data, setData] = useState([{}]);
   const [loading, setLoading] = useState(false);
   const [useRange, setUseRange] = useState(false);
-  
+const [filter, setFilter]= useState({})
   const [totalRows, setTotalRows] = useState(0);
   const [perPage, setPerPage] = useState(10);
 
@@ -71,7 +38,8 @@ const ListTransaction = () => {
     {
       name: "ID",
       selector: "ID",
-      sortable: false
+      sortable: false,
+      grow: 0,
     },
     {
       name: "Project",
@@ -93,14 +61,16 @@ const ListTransaction = () => {
       name: "Amount",
       selector: "Amount",
       sortable: false,
+      format: (row: any) => <>{row.Amount < 0 ? <CaretDownOutlined style={{ color: "red" }} /> : <CaretUpOutlined style={{ color: "green" }} />}{formatCurrency(row.Amount)}</>,
     },
     {
-      name: "Created At",
+      name: "Created At (GMT+7)",
       selector: "CreatedAt",
-      sortable: false,
+      sortable: false,//'YYYY/MM/DD'
+      format: (row: any) => <>{moment(row.CreatedAt).format('DD/MM/YYYY HH:mm')}</>,
     }
   ];
-
+//  let filterData:any = {};
   const fetchTransaction = async (page: number, newPage?: number) => {
     setLoading(true);
 
@@ -109,9 +79,20 @@ const ListTransaction = () => {
     let toIndex = fromIndex + perPageLocal - 1;
     console.log("req " + fromIndex + " to " + toIndex);
     let response;
+    let strFilter = JSON.stringify(filter);
+  //  + !_.isEmpty(filter ) ?`&filter=`+strFilter:""
+    console.log(strFilter);
+    console.log(_.isEmpty(filter ));
     try {
+      let urls = configData.baseURL + `/transactions?range=[` + fromIndex + `,` + toIndex + `]`
+      if (!_.isEmpty(filter )){
+        urls +=`&filter=`+strFilter
+      }
+      console.log(urls)
       response = await axios.get(
-        configData.baseURL + `/transactions?range=[` + fromIndex + `,` + toIndex + `]`,
+        urls
+        // configData.baseURL + `/transactions?range=[` + fromIndex + `,` + toIndex + `]` //+ !_.isEmpty(filter ) ?`&filter=`+strFilter:""
+        // filter &&`&filter=`+strFilter,
       );
       if (response.status != 200) {
         throw new Error('Unexpected response code');
@@ -141,23 +122,24 @@ const ListTransaction = () => {
 
   const handlePageChange = (page: number, totalRows: number) => {
     console.log("page change handler")
+    setCurrentPage(page);
     fetchTransaction(page);
   };
 
   const handlePerRowsChange = async (newPerPage: number, page: number) => {
     console.log("row change handler")
-    setLoading(true);
+    // setLoading(true);
 
     fetchTransaction(page);
 
     setPerPage(newPerPage);
-    setLoading(false);
+    // setLoading(false);
   };
   useEffect(() => {
     // setData(fakeData);
     fetchTransaction(1);
     console.log("trx page loaded");
-  }, [])
+  }, [filter])
   const { RangePicker } = DatePicker;
   const formItemLayout =
   {
@@ -165,69 +147,124 @@ const ListTransaction = () => {
     wrapperCol: { xl: 18, sm: 21 },
   }
     ;
+  const onFilter = (data: any) => {
+    //let rangeQuery = [];
+    let filterData:any={};
+    console.log(data);
+    if (data.DateRange){
+      console.log(data.DateRange[0].startOf('day').format())
+      console.log(data.DateRange[1].endOf('day').format())
+      filterData.start_date = data.DateRange[0].startOf('day').format();
+      filterData.end_date = data.DateRange[1].endOf('day').format();
+    } 
+   if (data.Project){
+    filterData.projectIDs=[data.Project]
+   }
+   
+    if (data.Pocket){
+      filterData.pocketIDs=[data.Pocket]
+    }
+filterData.type =     data.Type;
+
+console.log(filterData);
+
+setFilter(filterData);
+
+//console.log(JSON.stringify(filterData));
+
+    // data.DateRange?.forEach((el:any)=>{
+      
+
+    //   //console.log(el.startOf('day').format())
+    // })
+
+  };
   return (<>
 
     <DataTable
-    dense
+      dense
       striped
       subHeader
       subHeaderComponent={
         // <Card style={{ width: "100%" }} >
-          <Form style={{ width: "100%" }} size="small" form={form}
-            {...formItemLayout}
+        <Form style={{ width: "100%" }} size="small" form={form}
+          {...formItemLayout}
+          onFinish={onFilter}
+        >
+          <Row>
 
-          >
-            <Row>
+            <Col xl={12} sm={24}>           
+             <ProjectSelector projectOptional={true} forms={form} />
+            </Col>
+            <Col xl={12} sm={24}>
 
-              <Col xl={12} sm={24}>            <ProjectSelector forms={form} />
-              </Col>
-              <Col xl={12} sm={24}>
-                <Form.Item initialValue="all" name="Type" label="Type" rules={[{ required: true }]}>
+              <Form.Item initialValue="all" name="Type" label="Type" rules={[{ required: true }]}>
 
 
-                  <Radio.Group defaultValue="all" >
-                    <Radio value="all">All</Radio>
+                <Radio.Group defaultValue="all" >
+                  <Radio value="all">All</Radio>
 
-                    <Radio value="expense">Expense</Radio>
-                    <Radio value="income">Income</Radio>
-                  </Radio.Group>
+                  <Radio value="expense">Expense</Radio>
+                  <Radio value="income">Income</Radio>
+                </Radio.Group>
+              </Form.Item>
+
+              
+                <Form.Item  style={{ marginBottom: 0 }}
+                    label="Use Range" >
+                     <Form.Item initialValue={false} style={{ display: 'inline-block', float:"left"}} name="UseDateRange" >
+                 
+                  <Switch  checkedChildren={<CheckOutlined />}
+                    unCheckedChildren={<CloseOutlined />} onClick={(state) => {
+                      setUseRange(state)
+                    }} />
+                   </Form.Item>
+
+                    <Form.Item rules={[{ required: useRange }]} style={{ display: 'inline-block', float:"right", width: '80%'}} name="DateRange" >
+                        <RangePicker format='DD/MM/YYYY' disabled={!useRange} />
+                    </Form.Item>
+
                 </Form.Item>
 
-                <Form.Item name="DateRange" label="Use Range" >
+                
 
-<Space><Switch checkedChildren={<CheckOutlined />}
-      unCheckedChildren={<CloseOutlined />} onClick={(state)=>{
-        setUseRange(state)
-}} />           <RangePicker disabled={!useRange}  />
-       </Space>
-                </Form.Item>
 
-                <Form.Item style={{ float: "right" }}  >
-                  <Space>
-                    <Button type="primary" htmlType="submit">
-                      Apply
+              <Form.Item style={{ float: "right" }}  >
+                <Space>
+                  <Button type="primary" htmlType="submit">
+                    Apply Filter
         </Button>
-                    <Button htmlType="button" onClick={() => {
-                      form.resetFields();
-                    }} >
-                      Reset
+                  <Button htmlType="button" onClick={() => {
+                    form.resetFields();
+                  }} >
+                    Reset
         </Button>
-                  </Space>
+                </Space>
 
 
-                </Form.Item>
-              </Col>
+              </Form.Item>
+            </Col>
 
-            </Row>
+          </Row>
 
-          </Form>
+        </Form>
         // </Card>
       }
       progressPending={loading}
-      actions={<Button onClick={() => {
+      actions={
+      
+      <Space>
+      <Button onClick={() => {
         history.push('/transaction/add');
       }} icon={<UserAddOutlined />}  >
-        Add Transaction</Button>}
+        Create Transaction</Button>
+        <Button onClick={() => {
+        history.push('/transaction/add_transfer');
+      }} icon={<UserAddOutlined />}  >
+        Create Transfer</Button>
+        
+        </Space>
+      }
 
       title="Transactions"
       columns={columns}

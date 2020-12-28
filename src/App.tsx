@@ -2,7 +2,7 @@ import React from 'react';
 import { Col, Layout, Mentions, Menu, Row, Modal } from 'antd';
 import {
   DesktopOutlined,
-  PieChartOutlined,
+  PieChartOutlined,SwapOutlined,
   TransactionOutlined,
   TeamOutlined, AccountBookOutlined, ExclamationCircleOutlined,
   UserOutlined, DashboardOutlined, ProjectOutlined, SettingOutlined, LogoutOutlined
@@ -35,7 +35,8 @@ const [isLogin,setLogin]=useState(false);
     { key: '2', label: 'User', path: '/user', icon: <TeamOutlined />, content: UserPage },
     { key: '3', label: 'Project', path: '/project', icon: <ProjectOutlined />, content: ProjectPage },
     { key: '4', label: 'Transaction', path: '/transaction', icon: <TransactionOutlined />, content: TransactionPage },
-    { key: '5', label: 'Payable & Receivable', path: '/pending', icon: <AccountBookOutlined />, content: DashboardPage },
+    // { key: '6', label: 'Transfer', path: '/pending', icon: <SwapOutlined />, content: DashboardPage },
+    { key: '6', label: 'Payable & Receivable', path: '/pending', icon: <AccountBookOutlined />, content: DashboardPage },
   ];
   useEffect(()=>{
 

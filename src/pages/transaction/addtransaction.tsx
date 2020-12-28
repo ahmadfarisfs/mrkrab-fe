@@ -30,6 +30,7 @@ const MySwal = withReactContent(Swal);
 const AddTransactionPage = () => {
     const [form] = Form.useForm();
     const history = useHistory();
+    const [isPocketNeeded, setPocketNeeded] = useState(false);
     const tailLayout = {
         wrapperCol: {
             offset: 6,
@@ -56,25 +57,31 @@ const AddTransactionPage = () => {
                 //on failure after popup
             })
     };
-    
+
     return (<>
 
         <Card title="Add Transaction"  >
 
             <Form {...layout} form={form} name="control-hooks" onFinish={onSubmit} >
-                <ProjectSelector forms={form} />
+
 
 
 
                 <Form.Item initialValue="expense" name="Type" label="Type" rules={[{ required: true }]}>
+                    <Radio.Group onChange={(e) => {
 
-
-                    <Radio.Group defaultValue="expense">
+                        console.log(e.target.value)
+                        if (e.target.value === "income") {
+                            setPocketNeeded(false);
+                        } else {
+                            setPocketNeeded(true);
+                        }
+                    }} defaultValue="expense">
                         <Radio value="expense">Expense</Radio>
                         <Radio value="income">Income</Radio>
                     </Radio.Group>
                 </Form.Item>
-
+                <ProjectSelector forms={form} pocketNotNeeded={!isPocketNeeded} />
                 <Form.Item
                     label="Amount"
                     name="Amount"
