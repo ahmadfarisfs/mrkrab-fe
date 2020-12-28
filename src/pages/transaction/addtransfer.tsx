@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import DataTable from "react-data-table-component";
 import movies from "../../movies";
 import axios from 'axios';
-import { Spin, Button, Drawer, Tag, Badge, Switch, Radio, Card, Form, Input, Space, Select, Empty, InputNumber } from 'antd';
+import { Spin, Button, Drawer, Tag, Badge, Switch, Radio, Card, Form, Input, Space, Select, Empty, InputNumber, Row, Col, Divider } from 'antd';
 import { useHistory, Route } from 'react-router-dom';
 //import debounce from 'lodash/debounce';
 import _ from "lodash";
@@ -11,7 +11,7 @@ import moment from 'moment';
 import configData from "../../config.json";
 import {
     UserAddOutlined,
-    DeleteOutlined
+    DeleteOutlined,ArrowDownOutlined
 } from '@ant-design/icons';
 import Swal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content'
@@ -27,7 +27,7 @@ const { Option } = Select;
 const MySwal = withReactContent(Swal);
 
 
-const AddTransactionPage = () => {
+const AddTransferPage = () => {
     const [form] = Form.useForm();
     const history = useHistory();
     const [isPocketNeeded, setPocketNeeded] = useState(false);
@@ -45,13 +45,18 @@ const AddTransactionPage = () => {
     const onSubmit = (data: any) => {
         console.log(data)
         const payload = {
-            "ProjectID": data.Project,
-            "BudgetID": data.Pocket === "No Pocket" ? null : data.Pocket,
-            "Amount": data.Type === "expense" ? -data.Amount : data.Amount,
-            "Remarks": data.Remarks
+            "ProjectIDSource": data.Projectfrom,
+            "BudgetIDSource": data.Pocketfrom === "No Pocket" ? null : data.Pocketfrom,
+            "ProjectIDTarget": data.Projectto,
+            "BudgetIDTarget": data.Pocketto === "No Pocket" ? null : data.Pocketto,
+            "Amount":  data.Amount,
+            "Remarks": data.Remarks,
+            "Notes":"",
+            "Meta":"",
         }
-        submitWithConfirm(payload, "Create new transaction ?",
-            '', '/projects/transaction', 'Transaction created !', () => {
+        console.log(payload)
+        submitWithConfirm(payload, "Create new transfer ?",
+            '', '/projects/transfer', 'Transfer created !', () => {
                 history.push('/transaction')
             }, () => {
                 //on failure after popup
@@ -60,28 +65,14 @@ const AddTransactionPage = () => {
 
     return (<>
 
-        <Card title="Create Transaction"  >
-
+        <Card title="Create Transfer"  >
+        <Divider>From </Divider> 
             <Form {...layout} form={form} name="control-hooks" onFinish={onSubmit} >
 
 
-
-
-                <Form.Item initialValue="expense" name="Type" label="Type" rules={[{ required: true }]}>
-                    <Radio.Group onChange={(e) => {
-
-                        console.log(e.target.value)
-                        if (e.target.value === "income") {
-                            setPocketNeeded(false);
-                        } else {
-                            setPocketNeeded(true);
-                        }
-                    }} defaultValue="expense">
-                        <Radio value="expense">Expense</Radio>
-                        <Radio value="income">Income</Radio>
-                    </Radio.Group>
-                </Form.Item>
-                <ProjectSelector forms={form} pocketNotNeeded={!isPocketNeeded} />
+                
+                        {/* FROM */}
+                        <ProjectSelector forms={form}  nameSuffix="from" />
                 <Form.Item
                     label="Amount"
                     name="Amount"
@@ -98,7 +89,13 @@ const AddTransactionPage = () => {
                 >
                     <Input />
                 </Form.Item>
-                <Form.Item {...tailLayout}>
+
+          <Divider>To <ArrowDownOutlined /></Divider>    
+{/* TO */}
+<ProjectSelector forms={form}  nameSuffix="to"/>
+                    
+             
+                    <Form.Item {...tailLayout}>
                     <Space>
                         <Button type="primary" htmlType="submit" >
                             Submit
@@ -111,10 +108,14 @@ const AddTransactionPage = () => {
   </Button>
                     </Space>
                 </Form.Item>
+
+                
+                
+                
             </Form>
 
         </Card>
     </>)
 };
 
-export default AddTransactionPage;
+export default AddTransferPage;

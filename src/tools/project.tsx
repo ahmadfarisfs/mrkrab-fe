@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import DataTable from "react-data-table-component";
 // import movies from "../../movies";
 import axios from 'axios';
-import { Spin, Button, Drawer, Tag, Badge, Switch, Radio, Card, Form, Input, Space, Select, Empty, InputNumber } from 'antd';
+import { Spin, Button, Drawer, Tag, Badge, Switch, Divider, Radio, Card, Form, Input, Space, Select, Empty, InputNumber } from 'antd';
 import { useHistory, Route } from 'react-router-dom';
 //import debounce from 'lodash/debounce';
 import _ from "lodash";
@@ -12,7 +12,7 @@ import moment from 'moment';
 import configData from "../config.json";
 import {
     UserAddOutlined,
-    DeleteOutlined
+    DeleteOutlined, SearchOutlined
 } from '@ant-design/icons';
 import Swal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content'
@@ -30,6 +30,8 @@ const ProjectSelector = (props: any) => {
     let forms = props.forms;
     let pocketNotNeeded = props.pocketNotNeeded;
     let projectOptional = props.projectOptional;
+    
+    let nameSuffix =_.isUndefined( props.nameSuffix)?"":props.nameSuffix;
     // {onProjectSelected:any,onBudgetSelected:any,forms:any}
     console.log(projectOptional);
     const MySwal = withReactContent(Swal);
@@ -95,13 +97,15 @@ const ProjectSelector = (props: any) => {
         console.log("seleted proj budgets ");
         console.log(selectedProj);
         if (selectedProj?.Budgets) {
-            forms.setFieldsValue({
-                Pocket: selectedProj.Budgets?.length === 0 ? null : null
-            })
+            forms.setFieldsValue(
+                {
+                    ["Pocket" + nameSuffix]: selectedProj.Budgets?.length === 0 ? null : null
+                }
+            )
             setPockets(selectedProj.Budgets);
         } else {
             forms.setFieldsValue({
-                Pocket: null
+                ["Pocket" + nameSuffix]: null
             })
             setPockets([]);
         }
@@ -115,10 +119,23 @@ const ProjectSelector = (props: any) => {
         fetchProject("");
     }, []);
     return (<>
-        <Form.Item name="Project" label="Project" rules={[{ required: !projectOptional }]}>
+        <Form.Item name={"Project" + nameSuffix} label="Project" rules={[{ required: !projectOptional }]}>
             <Select
                 allowClear={projectOptional}
-                // dropdownRender={<Card></Card>}
+                dropdownRender={menu => (
+                    <div>
+                        {menu}
+                        <Divider style={{ margin: '4px 0' }} />
+                        <div style={{ display: 'flex', flexWrap: 'nowrap' }}>
+                            <a
+                                style={{ flex: 'none', padding: '8px', display: 'block', cursor: 'pointer' }}
+
+                            >
+                                Type project name to search  <SearchOutlined />
+                            </a>
+                        </div>
+                    </div>
+                )}
                 showSearch
                 loading={isFetchingProject}
                 placeholder="Select project, type to search for more.."
@@ -126,7 +143,7 @@ const ProjectSelector = (props: any) => {
                 filterOption={false}
                 onSearch={fetchProject}
                 onChange={onProjectChange}
-                onClear={()=>{setUsePocket(false)}}
+                onClear={() => { setUsePocket(false) }}
                 style={{ width: '100%' }}
             >
                 {
@@ -146,37 +163,41 @@ const ProjectSelector = (props: any) => {
         </Form.Item>
 
         <Form.Item
-       
-            hidden={ pockets.length == 0 || pocketNotNeeded}
+
+            hidden={pockets.length == 0 || pocketNotNeeded}
             style={{ marginBottom: 0 }}
             label="Use Pocket">
 
 
-            <Form.Item  style={{ display: 'inline-block', float: "left" }}>
-                <Switch 
-                // checked
+            <Form.Item style={{ display: 'inline-block', float: "left" }}>
+                <Switch
+                    // checked
 
-                 defaultChecked
-                onChange={(e)=>{
-                    if (!e){
+                    defaultChecked
+                    onChange={(e) => {
+                        if (!e) {
+                            forms.setFieldsValue(
+                                {
+                                    ["Pocket" + nameSuffix]: null
+                                }
+                            )
+                        }//clear filter pocketID
+                        setUsePocket(e)
 
-                    }//clear filter pocketID
-                    setUsePocket(e)
-                    
-                }}
+                    }}
                 />
             </Form.Item>
 
             <Form.Item
-                hidden={!usePocket }
-                name="Pocket"
-            // label="Pocket"
-                rules={[{required: usePocket && pockets.length!==0 &&!pocketNotNeeded}]}
+                hidden={!usePocket}
+                name={"Pocket" + nameSuffix}
+                // label="Pocket"
+                rules={[{ required: usePocket && pockets.length !== 0 && !pocketNotNeeded }]}
             >
 
                 <Select
                     value={(!pockets || pockets.length === 0 || pocketNotNeeded || !usePocket) && null}
-                    
+
                     defaultActiveFirstOption={false}
                     // allowClear
                     loading={isFetchingProject}

@@ -69,6 +69,7 @@ const AddProjectPage = () => {
         let projData = {
             "Name": data.ProjectName,
             "Description": data.ProjectDescription,
+            "TotalBudget":data.ProjectBudget,
             "Budgets": budgetsSend,
         }
         console.log(projData)

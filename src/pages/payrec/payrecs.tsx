@@ -2,20 +2,26 @@ import React, { useEffect, useState } from 'react';
 import DataTable from "react-data-table-component";
 import movies from "../../movies";
 import axios from 'axios';
-import { Button, Drawer, Badge,Switch } from 'antd';
+import { Button, Drawer, Badge,Tag } from 'antd';
 import { useHistory, Route } from 'react-router-dom';
-import AddProjectPage from './addprojects';
+// import AddProjectPage from './addPayRecs';
 import moment from 'moment';
 import configData from "../../config.json";
 import {
-  PlusCircleOutlined,
-  DeleteOutlined,ProjectOutlined
+  UserAddOutlined,CloseOutlined,CheckCircleFilled,
+  AccountBookOutlined,CheckOutlined,PlusCircleOutlined
 } from '@ant-design/icons';
+import { formatCurrency } from '../../tools/format'
+
 import Swal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content'
+import AddPayRecPage from './addpayrecs';
+import ButtonGroup from 'antd/lib/button/button-group';
+import { submitWithConfirm } from '../../tools/poster'
+
 const MySwal = withReactContent(Swal)
 
-const ListProject = () => {
+const ListPayRec = () => {
   const [data, setData] = useState([{}]);
   const [loading, setLoading] = useState(false);
   const [totalRows, setTotalRows] = useState(0);
@@ -23,6 +29,22 @@ const ListProject = () => {
   const [currentPage, setCurrentPage] = useState(1);
 
   const history = useHistory();
+  const onApprove =(id:any)=>{
+      submitWithConfirm(null,"Approve ?","","/payrec/approve/"+id,"Approved",()=>{
+        fetchPayRecs(1);
+      },()=>{
+
+      },"patch")
+  };
+  const onReject =(id:any)=>{
+    submitWithConfirm(null,"Reject ?","","/payrec/reject/"+id,"Rejected",()=>{
+        fetchPayRecs(1);
+    },()=>{
+
+    },"patch")
+
+  };
+
   const handleSetStatus = (id: any, status: string) => {
     MySwal.fire(
       {
@@ -32,7 +54,7 @@ const ListProject = () => {
         icon: 'warning',
         showLoaderOnConfirm: true,
         preConfirm: (login) => {
-          return axios.put(configData.baseURL + `/projects`, {
+          return axios.put(configData.baseURL + `/PayRecs`, {
             "Status": status,
             "ProjectID": id,
           })
@@ -55,101 +77,113 @@ const ListProject = () => {
     ).then((result) => {
       if (result.isConfirmed) {
         Swal.fire('Status Set!', '', 'success').then(() => {
-          fetchProjects(currentPage,perPage);
+          fetchPayRecs(currentPage,perPage);
         })
       }
     })
 
   };
-  const handleDelete = (id: any) => {
-    MySwal.fire(
-      {
-        title: 'Delete Confirmation ?',
-        text: "Are you sure you want to delete this project ?",
-        showCancelButton: true,
-        icon: 'warning',
-        showLoaderOnConfirm: true,
-        preConfirm: (login) => {
-          return axios.delete(configData.baseURL + `/projects/` + id)
-            .then(response => {
-              if (response.status != 200) {
-                throw new Error(response.statusText)
-              }
-              console.log("ret data")
-              console.log(response)
-              return "OK"
-            })
-            .catch(error => {
-              Swal.showValidationMessage(
-                `Delete Failed: ${error}`
-              )
-            })
-        },
-        allowOutsideClick: () => !Swal.isLoading()
-      }
-    ).then((result) => {
-      if (result.isConfirmed) {
-        Swal.fire('Project Deleted!', '', 'success').then(() => {
-         // history.go(0);
-         fetchProjects(currentPage,perPage);
-        })
-      }
-    })
 
-  };
   const columns = [
     {
       name: "ID",
       selector: "ID",
-      sortable: false,width:"5%",
+      sortable: false ,width:"5%",
       allowOverflow:true,
       wrap:false,
     },
     {
-      name: "Name",
-      selector: "Name",
+        name: "Project",
+        selector: "Project",
+        sortable: false,
+        format: (row: any) => <>{row.Project?.Name }</>,
+
+    },
+    {
+        name: null,
+        selector: "Pocket",
+        sortable: false,
+        right:true,
+        format: (row: any) => <>
+        <Tag  color={row.Pocket?.Name ? "geekblue":"default"}>
+          {row.Pocket?.Name?row.Pocket?.Name :"Non-Pocket"}
+        </Tag>
+        </>
+    },
+    
+    {
+      name: "Remarks",
+      selector: "Remarks",
       sortable: false
     },
     {
-      name: "Description",
-      selector: "Description",
-      sortable: false
-    },
+        name: "Type",
+        // selector: "Remarks",
+        sortable: false,
+        cell:(row: any) => <>
+            {row.Amount < 0 ? 
+            
+            <Tag color="warning">Payable</Tag> 
+            :
+            <Tag color="success">Receivable</Tag> 
+
+             }
+        </>
+      },
     {
-      name: "Status",
-      selector: "IsOpen",
+      name: "Amount",
+      selector: "Amount",
       sortable: false,
-      button:true,
-      cell: (row: any) => <>
-        {//      row.IsOpen ?
-        <Switch size="small" checkedChildren="Open" 
-        onClick={() => {
-          handleSetStatus(row.ID, row.IsOpen ? "close" : "open")
-        }}
-        unCheckedChildren="Closed" checked={row.IsOpen}  /> 
-        }
+      allowOverflow:true,
+      right: true,
+      format: (row: any) => <>
+    
+      {/* {row.Amount < 0 ? <CaretDownOutlined style={{ color: "red" }} /> 
+      :
+       <CaretUpOutlined style={{ color: "green" }} /> 
+       } */}
 
+       {formatCurrency(Math.abs(row.Amount))}
+    
+     
 
-      </>
+       </>
     },
-
     {
-      name: "Created Since",
+        name: "Transaction Ref",
+        selector: "TransactionCode",
+        sortable: false,
+        // format: (row: any) => <>{row.Pocket?.Name }</>,
+
+    },
+    {
+      name: "Created At (GMT+7)",
       selector: "CreatedAt",
-      sortable: false,
-      format: (row: any) => <>{row.CreatedAt ? moment(row.CreatedAt).fromNow() : null}</>,
-
+      sortable: false,//'YYYY/MM/DD'
+      format: (row: any) => <>{moment(row.CreatedAt).format('DD/MM/YYYY HH:mm')}</>,
     }, {
       name: 'Action',
       button: true,
       cell: (row: any) => <>
-          <Button onClick={() => handleDelete(row.ID)} size="small" danger icon={<DeleteOutlined />}></Button>
-     
+          { row.TransactionCode ? 
+        //   <CheckCircleFilled style={{color:"green"}}
+          <Badge text="Complete" color="green"
+          />: <ButtonGroup>
+          <Button
+        //    onClick={() => handleDelete(row.ID)}
+           size="small" type="primary" onClick={()=>{onApprove(row.ID)}} icon={<CheckOutlined />}> </Button>
+         
+          <Button
+          onClick={()=>{onReject(row.ID)}}
+        //    onClick={() => handleDelete(row.ID)}
+           size="small"  icon={<CloseOutlined />}></Button>
+         
+          </ButtonGroup> }
       </>,
     },
   ];
 
-  const fetchProjects = async (page: number, newPage?: number) => {
+  const fetchPayRecs = async (page: number, newPage?: number) => {
     setLoading(true);
 
     let perPageLocal = newPage ? newPage : perPage;
@@ -159,7 +193,7 @@ const ListProject = () => {
     let response;
     try {
       response = await axios.get(
-        configData.baseURL + `/projects?range=[` + fromIndex + `,` + toIndex + `]`,
+        configData.baseURL + `/payrec?range=[` + fromIndex + `,` + toIndex + `]`+`&sort=["transaction_code","asc"]`,
       );
       if (response.status != 200) {
         throw new Error('Unexpected response code');
@@ -190,17 +224,17 @@ const ListProject = () => {
   const handlePageChange = (page: number, totalRows: number) => {
     console.log("page change handler")
     setCurrentPage(page);
-    fetchProjects(page);
+    fetchPayRecs(page);
   };
 
   const handlePerRowsChange = async (newPerPage: number, page: number) => {
     console.log("row change handler " + newPerPage);
-    fetchProjects(page, newPerPage);
+    fetchPayRecs(page, newPerPage);
     setPerPage(newPerPage);
   };
   useEffect(() => {
-    fetchProjects(1);
-    console.log("Projects page loaded");
+    fetchPayRecs(1);
+    console.log("PayRecs page loaded");
   }, [])
   return (
     <DataTable
@@ -208,10 +242,10 @@ const ListProject = () => {
       dense
       progressPending={loading}
       actions={<Button type="primary" onClick={() => {
-        history.push('/project/add');
-      }} icon={<PlusCircleOutlined />}  >
-         Add Project</Button>}
-      title={<><ProjectOutlined /> Project</>}
+        history.push('/payrec/add');
+      }} icon={<PlusCircleOutlined/>}  >
+         Create Payable or Receivable</Button>}
+      title={<><AccountBookOutlined/> Payable & Receivable</>}
       columns={columns}
       data={data}
       pagination
@@ -223,12 +257,12 @@ const ListProject = () => {
   );
 };
 
-const ProjectPage = ({ match }: { match: any }) => {
+const PayRecPage = ({ match }: { match: any }) => {
 
   return (<>
-    <Route exact path={match.url + "/add"} component={AddProjectPage} />
+    <Route exact path={match.url + "/add"} component={AddPayRecPage} />
     <Route exact path={match.url} component={
-      ListProject
+      ListPayRec
 
     } />
 
@@ -237,4 +271,4 @@ const ProjectPage = ({ match }: { match: any }) => {
   </>
   )
 };
-export default ProjectPage;
+export default PayRecPage;

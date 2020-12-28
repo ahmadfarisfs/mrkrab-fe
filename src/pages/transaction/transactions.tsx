@@ -9,16 +9,17 @@ import configData from "../../config.json";
 import { formatCurrency } from '../../tools/format'
 
 import {
-  UserAddOutlined, CaretUpOutlined, CaretDownOutlined,
-  DeleteOutlined, CheckOutlined, CloseOutlined
+  PlusCircleFilled, CaretUpOutlined, CaretDownOutlined,PlusCircleOutlined,
+  SwapOutlined, CheckOutlined, CloseOutlined,TransactionOutlined
 } from '@ant-design/icons';
 import Swal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content'
 import 'antd/dist/antd.css';
-import { Button, Drawer, Badge, Switch, Card, Form, Space, Input, Col, Row, Radio, DatePicker } from 'antd';
+import { Button, Drawer, Badge, Switch, Card, Form, Space, Tag, Col, Row, Radio, DatePicker } from 'antd';
 import ProjectSelector from '../../tools/project';
 import { useForm } from 'antd/lib/form/Form';
 import _ from 'lodash';
+import AddTransferPage from './addtransfer';
 const MySwal = withReactContent(Swal)
 
 
@@ -39,17 +40,33 @@ const [filter, setFilter]= useState({})
       name: "ID",
       selector: "ID",
       sortable: false,
-      grow: 0,
+      width:"5%",
+      allowOverflow:true,
+      wrap:false,
+      // maxWidth:"1em"
+      // wrap: true, maxWidth	:"20px",
     },
     {
       name: "Project",
       selector: "ProjectName",
-      sortable: false
+      sortable: false,
+      allowOverflow:true,
+      // format: (row: any) => <>{row.ProjectName+" "}
+      // <Tag  color={row.PocketName ? "geekblue":"default"}>
+      //   {row.PocketName?row.PocketName :"Non-Pocket"}
+      // </Tag>
+      // </>
     },
     {
-      name: "Pocket",
+      name: null,
       selector: "PocketName",
       sortable: false,
+      right:true,
+      format: (row: any) => <>
+      <Tag  color={row.PocketName ? "geekblue":"default"}>
+        {row.PocketName?row.PocketName :"Non-Pocket"}
+      </Tag>
+      </>
     },
     {
       name: "Remarks",
@@ -61,12 +78,28 @@ const [filter, setFilter]= useState({})
       name: "Amount",
       selector: "Amount",
       sortable: false,
-      format: (row: any) => <>{row.Amount < 0 ? <CaretDownOutlined style={{ color: "red" }} /> : <CaretUpOutlined style={{ color: "green" }} />}{formatCurrency(row.Amount)}</>,
+      allowOverflow:true,
+      right: true,
+      format: (row: any) => <>
+    
+      {row.Amount < 0 ? <CaretDownOutlined style={{ color: "red" }} /> 
+      :
+       <CaretUpOutlined style={{ color: "green" }} /> 
+       }
+
+       {formatCurrency(Math.abs(row.Amount))}
+    
+     
+
+       </>,
+       
     },
     {
       name: "Created At (GMT+7)",
       selector: "CreatedAt",
       sortable: false,//'YYYY/MM/DD'
+      allowOverflow:true,
+      right:true,
       format: (row: any) => <>{moment(row.CreatedAt).format('DD/MM/YYYY HH:mm')}</>,
     }
   ];
@@ -82,12 +115,13 @@ const [filter, setFilter]= useState({})
     let strFilter = JSON.stringify(filter);
   //  + !_.isEmpty(filter ) ?`&filter=`+strFilter:""
     console.log(strFilter);
-    console.log(_.isEmpty(filter ));
+    console.log(_.isEmpty(filter));
     try {
       let urls = configData.baseURL + `/transactions?range=[` + fromIndex + `,` + toIndex + `]`
       if (!_.isEmpty(filter )){
         urls +=`&filter=`+strFilter
       }
+      // urls+=`&sort=["created_at", "desc"]`
       console.log(urls)
       response = await axios.get(
         urls
@@ -122,18 +156,14 @@ const [filter, setFilter]= useState({})
 
   const handlePageChange = (page: number, totalRows: number) => {
     console.log("page change handler")
-    setCurrentPage(page);
+    // setCurrentPage(page);
     fetchTransaction(page);
   };
 
   const handlePerRowsChange = async (newPerPage: number, page: number) => {
     console.log("row change handler")
-    // setLoading(true);
-
-    fetchTransaction(page);
-
+    fetchTransaction(page,newPerPage);
     setPerPage(newPerPage);
-    // setLoading(false);
   };
   useEffect(() => {
     // setData(fakeData);
@@ -185,9 +215,14 @@ setFilter(filterData);
       dense
       striped
       subHeader
+      subHeaderAlign="center"
       subHeaderComponent={
         // <Card style={{ width: "100%" }} >
-        <Form style={{ width: "100%" }} size="small" form={form}
+        <Form
+        
+        style={{ width: "100%" }}
+
+        size="small" form={form}
           {...formItemLayout}
           onFinish={onFilter}
         >
@@ -231,10 +266,10 @@ setFilter(filterData);
 
               <Form.Item style={{ float: "right" }}  >
                 <Space>
-                  <Button type="primary" htmlType="submit">
+                  <Button type="default" htmlType="submit">
                     Apply Filter
         </Button>
-                  <Button htmlType="button" onClick={() => {
+                  <Button  type="link"htmlType="button" onClick={() => {
                     form.resetFields();
                   }} >
                     Reset
@@ -254,26 +289,25 @@ setFilter(filterData);
       actions={
       
       <Space>
-      <Button onClick={() => {
+      <Button type="primary" onClick={() => {
         history.push('/transaction/add');
-      }} icon={<UserAddOutlined />}  >
+      }} icon={<PlusCircleOutlined />}  >
         Create Transaction</Button>
-        <Button onClick={() => {
+        <Button type="primary" onClick={() => {
         history.push('/transaction/add_transfer');
-      }} icon={<UserAddOutlined />}  >
+      }} icon={<SwapOutlined />}  >
         Create Transfer</Button>
         
         </Space>
       }
 
-      title="Transactions"
+      title={ <><TransactionOutlined /> Transaction</>}
       columns={columns}
       data={data}
 
       pagination
       paginationServer
       paginationTotalRows={totalRows}
-      //    selectableRows
       onChangeRowsPerPage={handlePerRowsChange}
       onChangePage={handlePageChange}
     />
@@ -286,6 +320,8 @@ const TransactionPage = ({ match }: { match: any }) => {
 
   return (<>
     <Route exact path={match.url + "/add"} component={AddTransactionPage} />
+    <Route exact path={match.url + "/add_transfer"} component={AddTransferPage} />
+   
     <Route exact path={match.url} component={
       ListTransaction
 

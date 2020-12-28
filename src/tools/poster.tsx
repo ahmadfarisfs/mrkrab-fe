@@ -7,7 +7,7 @@ import configData from "../config.json";
 const MySwal = withReactContent(Swal);
 export   const submitWithConfirm = (data: any,confirmTitle:string, 
     confirmText:string, uri:string,
-     successMessage:string,onSuccess:any,onFailure:any) => {
+     successMessage:string,onSuccess:any,onFailure:any,method:any) => {
     console.log(data);
 
     MySwal.fire(
@@ -18,7 +18,13 @@ export   const submitWithConfirm = (data: any,confirmTitle:string,
         icon: 'question',
         showLoaderOnConfirm: true,
         preConfirm: (login) => {
-          return axios.post(configData.baseURL + uri, data)
+          return axios({
+            method:method,
+            data:data,
+            url:configData.baseURL + uri,
+          }
+
+             )
             .then(response => {
               if (response.status != 200) {
                 console.log("NOT 200")

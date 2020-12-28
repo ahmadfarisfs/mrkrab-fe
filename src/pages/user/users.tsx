@@ -9,7 +9,7 @@ import configData from "../../config.json";
 import moment from 'moment';
 import {
     UserAddOutlined,
-    DeleteOutlined
+    DeleteOutlined,TeamOutlined
   } from '@ant-design/icons';
 
 import Swal from 'sweetalert2'
@@ -69,7 +69,9 @@ const ListUserPage = () => {
             name: "ID",
             selector: "ID",
             sortable: false,
-            maxWidth:".5em",
+            width:"5%",
+            allowOverflow:true,
+            wrap:false,
         },
         {
             name: "Name",
@@ -161,17 +163,17 @@ const ListUserPage = () => {
     return (
         <>
         <DataTable
-            paginationRowsPerPageOptions={[2, 5, 10]}
+        dense
+            // paginationRowsPerPageOptions={[2, 5, 10]}
             progressPending={loading}
-            actions={<Button
+            actions={<Button type="primary"
                 icon={<UserAddOutlined />}
                 onClick={() => {
                 history.push('/user/add')
             }} className="d-flex align-items-center"  >
                  Add User</Button>}
 
-            title="Users"
-            columns={columns}
+title={ <><TeamOutlined /> User</>}            columns={columns}
             data={data}
 
             pagination
