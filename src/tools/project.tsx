@@ -119,7 +119,9 @@ const ProjectSelector = (props: any) => {
         fetchProject("");
     }, []);
     return (<>
-        <Form.Item name={"Project" + nameSuffix} label="Project" rules={[{ required: !projectOptional }]}>
+        <Form.Item 
+        key ={"Project" + nameSuffix} 
+        name={"Project" + nameSuffix} label="Project" rules={[{ required: !projectOptional }]}>
             <Select
                 allowClear={projectOptional}
                 dropdownRender={menu => (
@@ -163,13 +165,15 @@ const ProjectSelector = (props: any) => {
         </Form.Item>
 
         <Form.Item
-
+    key={"sw-pckt-"+nameSuffix}
             hidden={pockets.length == 0 || pocketNotNeeded}
             style={{ marginBottom: 0 }}
             label="Use Pocket">
 
 
-            <Form.Item style={{ display: 'inline-block', float: "left" }}>
+            <Form.Item
+                key={"sw-pckts-"+nameSuffix}
+            style={{ display: 'inline-block', float: "left" }}>
                 <Switch
                     // checked
 
@@ -189,6 +193,7 @@ const ProjectSelector = (props: any) => {
             </Form.Item>
 
             <Form.Item
+                key={"Pocket"+nameSuffix}
                 hidden={!usePocket}
                 name={"Pocket" + nameSuffix}
                 // label="Pocket"
