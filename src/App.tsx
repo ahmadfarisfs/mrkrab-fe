@@ -106,8 +106,8 @@ const Appt = (props:any) => {
               title={
               <>
               
-              {sessionData.name+" "}
-              <Tag >{sessionData.role}</Tag>
+              {sessionData?.name+" "}
+              <Tag >{sessionData?.role}</Tag>
               
               
               </>}>
@@ -235,7 +235,8 @@ const App = () => {
 
   return (<>
     {isLogin ? <Appt sessionData={sessionData} /> : <NormalLoginForm loggedIn={isLogin} onLogin={() => {
-      setLogin(true);
+      // setLogin(true);
+      window.location.reload()
     }} />}
   </>);
 };

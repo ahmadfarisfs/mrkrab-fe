@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import DataTable from "react-data-table-component";
 import movies from "../../movies";
 import axios from 'axios';
-import { Spin, Button, Drawer, Tag, Badge, Switch, Radio, Card, Form, Input, Space, Select, Empty, InputNumber } from 'antd';
+import { Spin, Button,DatePicker, Drawer, Tag, Badge, Switch, Radio, Card, Form, Input, Space, Select, Empty, InputNumber } from 'antd';
 import { useHistory, Route } from 'react-router-dom';
 //import debounce from 'lodash/debounce';
 import _ from "lodash";
@@ -63,10 +63,6 @@ const AddTransactionPage = () => {
         <Card title="Create Transaction"  >
 
             <Form {...layout} form={form} name="control-hooks" onFinish={onSubmit} >
-
-
-
-
                 <Form.Item initialValue="expense" name="Type" label="Type" rules={[{ required: true }]}>
                     <Radio.Group onChange={(e) => {
 
@@ -98,6 +94,14 @@ const AddTransactionPage = () => {
                 >
                     <Input />
                 </Form.Item>
+                <Form.Item
+                    label="Date"
+                    name="Date"
+                    rules={[{ required: true, message: 'Please input date' }]}
+                >
+                    <DatePicker defaultValue={moment()} /> 
+                </Form.Item>
+                
                 <Form.Item {...tailLayout}>
                     <Space>
                         <Button type="primary" htmlType="submit" >

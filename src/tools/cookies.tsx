@@ -1,6 +1,7 @@
 import Cookies from 'js-cookie'
 import axios from 'axios';
 import jwt_decode from "jwt-decode";
+import _ from 'lodash';
 
 
 export const getSessionData = () =>{
@@ -8,7 +9,14 @@ export const getSessionData = () =>{
     console.log("decoded session data")
     // console.log(decoded)
     // return JSON.parse(decoded)
-    let data = jwt_decode(getSession()as string)
+   let data;
+   console.log(getSession());
+    if (_.isNull(getSession()) || _.isUndefined(getSession()) ){
+        
+    }else{
+        data = jwt_decode(getSession()as string)
+    }
+    // let data = jwt_decode(getSession()as string)
 // console.log()
 return data
 }
