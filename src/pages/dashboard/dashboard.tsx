@@ -3,7 +3,7 @@ import {
     LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend,ResponsiveContainer
   } from 'recharts';
 import DataTable from "react-data-table-component";
-import movies from "../../movies";
+// import movies from "../../movies";
 import axios from 'axios';
 import { PlusCircle, CashStack, Bricks, Cash } from 'react-bootstrap-icons';
 import { Card, Row,Col, Form,Container,Button } from 'react-bootstrap';

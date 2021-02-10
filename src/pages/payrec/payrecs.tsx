@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import DataTable from "react-data-table-component";
-import movies from "../../movies";
+// import movies from "../../movies";
 import axios from 'axios';
 import { Button, Drawer, Badge,Tag } from 'antd';
 import { useHistory, Route } from 'react-router-dom';
