@@ -1,7 +1,7 @@
 
 import React, { useEffect, useState } from 'react';
 import DataTable from "react-data-table-component";
-import movies from "../../movies";
+// import movies from "../../movies";
 import axios from 'axios';
 import { Spin, Button,DatePicker, Drawer, Tag, Badge, Switch, Radio, Card, Form, Input, Space, Select, Empty, InputNumber } from 'antd';
 import { useHistory, Route } from 'react-router-dom';
@@ -48,7 +48,9 @@ const AddTransactionPage = () => {
             "ProjectID": data.Project,
             "BudgetID": data.Pocket === "No Pocket" ? null : data.Pocket,
             "Amount": data.Type === "expense" ? -data.Amount : data.Amount,
-            "Remarks": data.Remarks
+            "TransactionDate":data.Date,
+            "Remarks": data.Remarks,
+            "SoD":data.SoD,
         }
         submitWithConfirm(payload, "Create new transaction ?",
             '', '/projects/transaction', 'Transaction created !', () => {
@@ -91,6 +93,13 @@ const AddTransactionPage = () => {
                     label="Remarks"
                     name="Remarks"
                     rules={[{ required: true, message: 'Please input remarks' }]}
+                >
+                    <Input />
+                </Form.Item>
+                <Form.Item
+                    label="SoD"
+                    name="SoD"
+                    rules={[{ required: true, message: 'Please input source or destination description' }]}
                 >
                     <Input />
                 </Form.Item>

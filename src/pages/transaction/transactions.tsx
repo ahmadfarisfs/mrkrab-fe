@@ -72,6 +72,11 @@ const [filter, setFilter]= useState({})
       name: "Remarks",
       selector: "Remarks",
       sortable: false,
+    },
+    {
+      name: "SoD",
+      selector: "SoD",
+      sortable: false,
     }
     ,
     {

@@ -43,6 +43,7 @@ const AddPayRecPage = () => {
     payload.ProjectID= data.Project
     payload.BudgetID=data.Pocket
     payload.Remarks = data.Remarks
+    payload.SoD = data.SoD
     console.log(payload);
     submitWithConfirm(payload, "Create new " + payRecType + " ?",
       '', '/payrec', 'New ' + payRecType + ' created !', () => {
@@ -110,7 +111,14 @@ const AddPayRecPage = () => {
                 >
                     <Input />
                 </Form.Item>
-
+                <Form.Item
+                    label="SoD"
+                    name="SoD"
+                    help="Source or Destination"
+                    rules={[{ required: true, message: 'Please input SoD' }]}
+                >
+                    <Input />
+                </Form.Item>
 
         <Form.Item {...tailLayout}>
           <Space>

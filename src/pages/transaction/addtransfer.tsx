@@ -1,7 +1,7 @@
 
 import React, { useEffect, useState } from 'react';
 import DataTable from "react-data-table-component";
-import movies from "../../movies";
+// import movies from "../../movies";
 import axios from 'axios';
 import { Spin, Button, Drawer, Tag, Badge, Switch, Radio, Card, Form, Input, Space, Select, Empty, InputNumber, Row, Col, Divider } from 'antd';
 import { useHistory, Route } from 'react-router-dom';

@@ -115,6 +115,10 @@ const ListPayRec = () => {
       name: "Remarks",
       selector: "Remarks",
       sortable: false
+    },   {
+      name: "SoD",
+      selector: "SoD",
+      sortable: false
     },
     {
         name: "Type",

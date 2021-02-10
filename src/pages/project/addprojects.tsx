@@ -160,13 +160,13 @@ const AddProjectPage = () => {
                     >
                         <Input.TextArea />
                     </Form.Item>
-                    <Form.Item
+                    {/* <Form.Item
                         key="prjBudget"
                         name="ProjectBudget"
                         label="Budget"
                         rules={[
                             {
-                                required: true,
+                                // required: true,
                             },
                         ]}
                     >
@@ -175,7 +175,7 @@ const AddProjectPage = () => {
                         parser={currencyParser}
                         min={0}
                         />
-                    </Form.Item>
+                    </Form.Item> */}
                     
                     <Form.Item label="Pockets"  >
                         <Form.List

@@ -57,7 +57,12 @@ const Appt = (props:any) => {
     <Router>
       <Layout style={{ minHeight: '100vh' }}>
         <Sider breakpoint="lg" collapsible collapsed={collapsed} onCollapse={onCollapse}>
-          <div className="logo" />
+          <div style={{display:'flex'}}>
+          <div className="logo" ></div> 
+          {/* <div style={{alignItems:"center"}}><h2>asljdfh</h2></div> */}
+          
+          {/* <div style={{verticalAlign:'middle'}}><h3>Whatever</h3></div> */}
+          </div>
           <Menu
             key="m-s"
             mode='inline' theme="dark" defaultSelectedKeys={['1']}>
