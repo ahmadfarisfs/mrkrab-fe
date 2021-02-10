@@ -95,6 +95,14 @@ const [filter, setFilter]= useState({})
        
     },
     {
+      name: "Trx Date (GMT+7)",
+      selector: "TransactionDate",
+      sortable: false,//'YYYY/MM/DD'
+      allowOverflow:true,
+      right:true,
+      format: (row: any) => <>{moment(row.TransactionDate).format('DD/MM/YYYY')}</>,
+    },
+    {
       name: "Created At (GMT+7)",
       selector: "CreatedAt",
       sortable: false,//'YYYY/MM/DD'
