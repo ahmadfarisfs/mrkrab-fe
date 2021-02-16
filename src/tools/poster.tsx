@@ -51,7 +51,12 @@ export   const submitWithConfirm = (data: any,confirmTitle:string,
       }
     ).then((result) => {
       if (result.isConfirmed) {
-        Swal.fire(successMessage, '', 'success').then(() => {
+        Swal.fire(
+          {
+            timer: 1500,
+            title:successMessage,
+            icon:'success'
+          }).then(() => {
          onSuccess();
             //history.push('/user');
         })

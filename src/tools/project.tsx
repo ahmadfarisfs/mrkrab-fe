@@ -30,8 +30,8 @@ const ProjectSelector = (props: any) => {
     let forms = props.forms;
     let pocketNotNeeded = props.pocketNotNeeded;
     let projectOptional = props.projectOptional;
-    
-    let nameSuffix =_.isUndefined( props.nameSuffix)?"":props.nameSuffix;
+
+    let nameSuffix = _.isUndefined(props.nameSuffix) ? "" : props.nameSuffix;
     // {onProjectSelected:any,onBudgetSelected:any,forms:any}
     console.log(projectOptional);
     const MySwal = withReactContent(Swal);
@@ -119,9 +119,9 @@ const ProjectSelector = (props: any) => {
         fetchProject("");
     }, []);
     return (<>
-        <Form.Item 
-        key ={"Project" + nameSuffix} 
-        name={"Project" + nameSuffix} label="Project" rules={[{ required: !projectOptional }]}>
+        <Form.Item
+            key={"Project" + nameSuffix}
+            name={"Project" + nameSuffix} label="Project" rules={[{ required: !projectOptional }]}>
             <Select
                 allowClear={projectOptional}
                 dropdownRender={menu => (
@@ -165,18 +165,18 @@ const ProjectSelector = (props: any) => {
         </Form.Item>
 
         <Form.Item
-    key={"sw-pckt-"+nameSuffix}
+            key={"sw-pckt-" + nameSuffix}
             hidden={pockets.length == 0 || pocketNotNeeded}
             style={{ marginBottom: 0 }}
             label="Use Pocket">
 
 
             <Form.Item
-                key={"sw-pckts-"+nameSuffix}
-            style={{ display: 'inline-block', float: "left" }}>
+                key={"sw-pckts-" + nameSuffix}
+                style={{ display: 'inline-block', float: "left" }}>
                 <Switch
+                    disabled={!pocketNotNeeded}
                     // checked
-
                     defaultChecked
                     onChange={(e) => {
                         if (!e) {
@@ -193,8 +193,8 @@ const ProjectSelector = (props: any) => {
             </Form.Item>
 
             <Form.Item
-                key={"Pocket"+nameSuffix}
-                hidden={!usePocket}
+                key={"Pocket" + nameSuffix}
+                hidden={!(usePocket && pockets.length !== 0 && !pocketNotNeeded)}
                 name={"Pocket" + nameSuffix}
                 // label="Pocket"
                 rules={[{ required: usePocket && pockets.length !== 0 && !pocketNotNeeded }]}

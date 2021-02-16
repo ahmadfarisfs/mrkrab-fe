@@ -242,7 +242,7 @@ setFilter(filterData);
           <Row>
 
             <Col xl={12} sm={24}>           
-             <ProjectSelector projectOptional={true} forms={form} />
+             <ProjectSelector projectOptional={true} pocketNotNeeded={true} forms={form} />
             </Col>
             <Col xl={12} sm={24}>
 

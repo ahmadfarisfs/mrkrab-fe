@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import DataTable from "react-data-table-component";
 // import movies from "../../movies";
 import axios from 'axios';
-import { Spin, Button, Drawer, Tag, Badge, Switch, Radio, Card, Form, Input, Space, Select, Empty, InputNumber, Row, Col, Divider } from 'antd';
+import { Spin, Button, Drawer, Tag, Badge, Switch,DatePicker, Radio, Card, Form, Input, Space, Select, Empty, InputNumber, Row, Col, Divider } from 'antd';
 import { useHistory, Route } from 'react-router-dom';
 //import debounce from 'lodash/debounce';
 import _ from "lodash";
@@ -37,7 +37,11 @@ const AddTransferPage = () => {
             span: 16,
         },
     };
-
+    useEffect(() => {
+        form.setFieldsValue({
+            "Date":moment()
+        })
+    }, [])
     const layout = {
         labelCol: { span: 6 },
         wrapperCol: { span: 16 },
@@ -53,6 +57,7 @@ const AddTransferPage = () => {
             "Remarks": data.Remarks,
             "Notes":"",
             "Meta":"",
+            "TrxDate":data.Date,
         }
         console.log(payload)
         submitWithConfirm(payload, "Create new transfer ?",
@@ -72,7 +77,7 @@ const AddTransferPage = () => {
 
                 
                         {/* FROM */}
-                        <ProjectSelector forms={form}  nameSuffix="from" />
+                        <ProjectSelector pocketNotNeeded={true}  forms={form}  nameSuffix="from" />
                 <Form.Item
                     label="Amount"
                     name="Amount"
@@ -89,10 +94,16 @@ const AddTransferPage = () => {
                 >
                     <Input />
                 </Form.Item>
-
+                <Form.Item
+                    label="Date"
+                    name="Date"
+                    rules={[{ required: true, message: 'Please input date' }]}
+                >
+                    <DatePicker  defaultValue={moment()} /> 
+                </Form.Item>
           <Divider>To <ArrowDownOutlined /></Divider>    
 {/* TO */}
-<ProjectSelector forms={form}  nameSuffix="to"/>
+<ProjectSelector forms={form} pocketNotNeeded={true}   nameSuffix="to"/>
                     
              
                     <Form.Item {...tailLayout}>

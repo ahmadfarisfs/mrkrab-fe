@@ -30,14 +30,18 @@ const MySwal = withReactContent(Swal);
 const AddTransactionPage = () => {
     const [form] = Form.useForm();
     const history = useHistory();
-    const [isPocketNeeded, setPocketNeeded] = useState(false);
+    const [isPocketNeeded, setPocketNeeded] = useState(true);
     const tailLayout = {
         wrapperCol: {
             offset: 6,
             span: 16,
         },
     };
-
+    useEffect(() => {
+        form.setFieldsValue({
+            "Date":moment()
+        })
+    }, [])
     const layout = {
         labelCol: { span: 6 },
         wrapperCol: { span: 16 },
@@ -46,12 +50,13 @@ const AddTransactionPage = () => {
         console.log(data)
         const payload = {
             "ProjectID": data.Project,
-            "BudgetID": data.Pocket === "No Pocket" ? null : data.Pocket,
+            "BudgetID": data.Pocket === "No Pocket" ? null : isPocketNeeded ? data.Pocket:null,
             "Amount": data.Type === "expense" ? -data.Amount : data.Amount,
             "TransactionDate":data.Date,
             "Remarks": data.Remarks,
             "SoD":data.SoD,
         }
+        console.log(payload)
         submitWithConfirm(payload, "Create new transaction ?",
             '', '/projects/transaction', 'Transaction created !', () => {
                 history.push('/transaction')

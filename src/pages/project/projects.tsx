@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import DataTable from "react-data-table-component";
 // import movies from "../../movies";
 import axios from 'axios';
-import { Button, Drawer, Badge,Switch } from 'antd';
+import { Button, Drawer, Statistic,Switch, Spin ,Row,Col} from 'antd';
 import { useHistory, Route } from 'react-router-dom';
 import AddProjectPage from './addprojects';
 import moment from 'moment';
@@ -17,10 +17,15 @@ const MySwal = withReactContent(Swal)
 
 const ListProject = () => {
   const [data, setData] = useState([{}]);
+  const [dataDetails, setDataDetails] = useState({} as any);
+  
   const [loading, setLoading] = useState(false);
   const [totalRows, setTotalRows] = useState(0);
   const [perPage, setPerPage] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
+  const [drawerOpen, setDrawer] = useState(false);
+  const [drawerLoading, setDrawerLoading] = useState(false);
+  
 
   const history = useHistory();
   const handleSetStatus = (id: any, status: string) => {
@@ -202,8 +207,53 @@ const ListProject = () => {
     fetchProjects(1);
     console.log("Projects page loaded");
   }, [])
+
+  useEffect(()=>{
+    
+  },[drawerLoading])
+
+  const fetchDetails = async (id:number)=>{
+    setDrawerLoading(true);
+    let response;
+    try {
+      response = await axios.get(
+        configData.baseURL + `/projects/financial/`+id,
+      );
+      if (response.status != 200) {
+        throw new Error('Unexpected response code');
+      }
+      console.log(response);
+      setDataDetails(response.data);
+      // var totalData = parseInt(response.headers["content-range"].split("/")[1]);
+      // console.log("total data " + totalData);
+      // setTotalRows(totalData);
+
+    } catch (error) {
+      console.log(error);
+      setDataDetails({});
+      MySwal.fire(
+        {
+          title: 'Error',
+          icon: 'error',
+          text: error,
+        }
+      )
+    } finally {
+      setDrawerLoading(false);
+    }
+  };
   return (
+    <>
+
     <DataTable
+    onRowClicked={(row:any)=>{
+console.log(row)
+setDrawer(true)
+// setDrawerLoading(true)
+fetchDetails(row.ID)
+    }}
+    pointerOnHover
+    highlightOnHover
       striped
       dense
       progressPending={loading}
@@ -220,6 +270,49 @@ const ListProject = () => {
       onChangeRowsPerPage={handlePerRowsChange}
       onChangePage={handlePageChange}
     />
+    <Drawer
+          title="Basic Drawer"
+          placement="top"
+          closable={false}
+          onClose={()=>{
+            setDrawer(false)
+          }}
+          // height={400}
+          visible={drawerOpen}
+          // key={placement}
+        >
+          {drawerLoading ?  <Spin/>:  <>
+            
+            <Row gutter={16}>
+    <Col span={6}>
+      <Statistic title="Total Income" value={dataDetails?.ProjectAccount?.TotalIncome} />
+    </Col>
+    <Col span={6}>
+      <Statistic title="Total Receivables"  value={dataDetails?.TotalReceivables}  />
+    </Col>
+    <Col span={6}>
+      <Statistic title="Total Expense" value={dataDetails?.ProjectAccount?.TotalExpense} />
+    </Col>
+    <Col span={6}>
+      <Statistic title="Total Payables"
+       value={dataDetails?.TotalPayables} 
+       />
+    </Col>
+  </Row>
+  <Row gutter={16}>
+    <Col span={8}>
+      <Statistic title="I + AR" value={dataDetails?.ProjectAccount?.TotalIncome + dataDetails?.TotalReceivables} />
+    </Col>
+    <Col span={8}>
+      <Statistic title="E + AP"  value={dataDetails?.ProjectAccount?.TotalExpense+ dataDetails?.TotalPayables}  />
+    </Col>
+    <Col span={8}>
+      <Statistic title="Balance (Cash)"  value={dataDetails?.ProjectAccount?.TotalIncome- dataDetails?.ProjectAccount?.TotalExpense}  />
+    </Col>
+  </Row>
+          </> }
+        </Drawer>
+    </>
   );
 };
 
